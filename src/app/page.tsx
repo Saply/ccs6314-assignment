@@ -1,7 +1,7 @@
 import PlayfairCipher from "@/components/PlayfairCipher"
 import RailFenceCipher from "@/components/RailFenceCipher"
-import KeyExchange from "@/components/KeyExchange"
 import AESEncryption from "@/components/AESEncryption"
+import RSA from "@/components/RSA"
 import PlayFairRailFenceProduct from "@/components/PlayFairRailFenceProduct"
 
 export default function Home() {
@@ -20,7 +20,7 @@ export default function Home() {
 
       <section className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">2. Hybrid Modern Asymmetric and Symmetric Cipher</h2>
-        <KeyExchange />
+        <RSA />
         <AESEncryption />
       </section>
     </main>
