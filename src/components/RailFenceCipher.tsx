@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 
-const encrypt = (plaintext: string, depth: number): { ciphertext: string; steps: string[] } => {
+export const encryptRailFence = (plaintext: string, depth: number): { ciphertext: string; steps: string[] } => {
   if (depth <= 1) return { ciphertext: plaintext, steps: ["Depth is 1, no encryption needed."] }
 
   const rail = Array.from({ length: depth }, () => "")
@@ -28,7 +28,7 @@ const encrypt = (plaintext: string, depth: number): { ciphertext: string; steps:
   return { ciphertext: rail.join(""), steps }
 }
 
-const decrypt = (ciphertext: string, depth: number): { plaintext: string; steps: string[] } => {
+export const decryptRailFence = (ciphertext: string, depth: number): { plaintext: string; steps: string[] } => {
   if (depth <= 1) return { plaintext: ciphertext, steps: ["Depth is 1, no decryption needed."] }
 
   const rail = Array.from({ length: depth }, () => Array(ciphertext.length).fill(""))
@@ -80,13 +80,13 @@ export default function RailFenceCipher() {
   const [decryptionSteps, setDecryptionSteps] = useState<string[]>([])
 
   const handleEncrypt = () => {
-    const { ciphertext, steps } = encrypt(plaintext, depth)
+    const { ciphertext, steps } = encryptRailFence(plaintext, depth)
     setCiphertext(ciphertext)
     setEncryptionSteps(steps)
   }
 
   const handleDecrypt = () => {
-    const { plaintext, steps } = decrypt(ciphertext, depth)
+    const { plaintext, steps } = decryptRailFence(ciphertext, depth)
     setDecryptedText(plaintext)
     setDecryptionSteps(steps)
   }

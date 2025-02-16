@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 
-const generatePlayfairMatrix = (key: string): { matrix: string[][]; steps: string[] } => {
+export const generatePlayfairMatrix = (key: string): { matrix: string[][]; steps: string[] } => {
   const alphabet = "ABCDEFGHIKLMNOPQRSTUVWXYZ"
   const uniqueChars = Array.from(new Set(key.toUpperCase().replace(/J/g, "I") + alphabet))
   const matrix = Array.from({ length: 5 }, (_, i) => uniqueChars.slice(i * 5, (i + 1) * 5))
@@ -21,7 +21,7 @@ const generatePlayfairMatrix = (key: string): { matrix: string[][]; steps: strin
   return { matrix, steps }
 }
 
-const encrypt = (plaintext: string, matrix: string[][]): { ciphertext: string; steps: string[] } => {
+export const encrypt = (plaintext: string, matrix: string[][]): { ciphertext: string; steps: string[] } => {
   const steps: string[] = []
   let ciphertext = ""
   const pairs =
@@ -70,7 +70,7 @@ const encrypt = (plaintext: string, matrix: string[][]): { ciphertext: string; s
   return { ciphertext, steps }
 }
 
-const decrypt = (ciphertext: string, matrix: string[][]): { plaintext: string; steps: string[] } => {
+export const decrypt = (ciphertext: string, matrix: string[][]): { plaintext: string; steps: string[] } => {
   const steps: string[] = []
   let plaintext = ""
   const pairs = ciphertext.match(/[A-Z]{2}/g) || []
