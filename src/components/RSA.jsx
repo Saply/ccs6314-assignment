@@ -65,33 +65,54 @@ export default function RSA() {
   const encryptMessage = () => {
     console.log(publicKey)
     console.log(privateKey)
+    let encryptionSteps = [`<u>Step 1: Encode plaintext message '${message}' to number m in ASCII representation</u>`]
+    let cipherSteps = []
+    
     var msgArray = message.split("").map((char) => {
       var ascii = char.charCodeAt(0)
       let encrypted = power(
         ascii, publicKey.e, publicKey.n
       )
-      return String.fromCharCode(encrypted)
-    })
-    console.log(msgArray)
+      let encryptedAscii = String.fromCharCode(encrypted)
+      encryptionSteps.push(`${char}: ${ascii}`)
+      cipherSteps.push(`${ascii}^${publicKey.e} mod ${publicKey.n} = <b>${encrypted}</b> → ${encryptedAscii}`)
 
-    // TODO: Create function which appends encryption array in middle with values for converting ascii to encrypted 
+      return encryptedAscii
+    })
+    // console.log(cipherSteps)
+    encryptionSteps.push("<u>Step 2: Calculate ciphertext: c = m^e mod n then encode back to ASCII</u>")
+    encryptionSteps = encryptionSteps.concat(cipherSteps)
+
     setSteps((prevSteps) => ({
       ...prevSteps,
-      encryption: [`Step 1: Convert message '${message}' to number m`,
-        `e\ne\ne\n`,
-         "Step 2: Calculate c = m^e mod n"
-      ],
+      encryption: encryptionSteps,
     }))
     setEncryptedMessage(msgArray.join(""))
   }
 
   const decryptMessage = () => {
-    // Placeholder for decryption logic
+    let decryptionSteps = [`<u>Step 1: Encode encrypted message to number m in ASCII representation</u>`]
+    let plaintextSteps = []
+    let decryptedMessage = encryptedMessage.split("").map((char) => {
+      let ascii = char.charCodeAt(0)
+      let decrypted = power(
+        ascii, privateKey.d, privateKey.n
+      )
+      let decryptedAscii = String.fromCharCode(decrypted)
+      decryptionSteps.push(`${char}: ${ascii}`)
+      plaintextSteps.push(`${ascii}^${privateKey.d} mod ${privateKey.n} = <b>${decrypted}</b> → ${decryptedAscii}`)
+
+      return decryptedAscii
+    })
+
+    decryptionSteps.push("<u>Step 2: Calculate plaintext: m = c^d mod n then encode back to ASCII")
+    decryptionSteps = decryptionSteps.concat(plaintextSteps)
+
     setSteps((prevSteps) => ({
       ...prevSteps,
-      decryption: ["Step 1: Calculate m = c^d mod n", "Step 2: Convert number m back to message"],
+      decryption: decryptionSteps,
     }))
-    setDecryptedMessage("decrypted_message")
+    setDecryptedMessage(decryptedMessage.join(""))
   }
 
   return (
@@ -142,7 +163,7 @@ export default function RSA() {
           </CardHeader>
           <CardContent>
             {steps.encryption.map((step, index) => (
-              <p key={`encrypt-${index}`}>{step}</p>
+              <p key={`encrypt-${index}`} dangerouslySetInnerHTML={{ __html: step }} />
             ))}
           </CardContent>
         </Card>
@@ -153,7 +174,7 @@ export default function RSA() {
           </CardHeader>
           <CardContent>
             {steps.decryption.map((step, index) => (
-              <p key={`decrypt-${index}`}>{step}</p>
+              <p key={`decrypt-${index}`} dangerouslySetInnerHTML={{ __html: step }} />
             ))}
           </CardContent>
         </Card>
