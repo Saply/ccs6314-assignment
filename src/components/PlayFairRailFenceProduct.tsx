@@ -14,6 +14,11 @@ const PlayFairRailFenceProduct = () => {
   const [plaintext, setPlaintext] = useState("")
   const [ciphertext, setCiphertext] = useState("")
   const [decryptedText, setDecryptedText] = useState("")
+  const [matrixSteps, setMatrixSteps] = useState<string[]>([])
+  const [encryptionSteps, setEncryptionSteps] = useState<string[]>([])
+  const [decryptionSteps, setDecryptionSteps] = useState<string[]>([])
+  const [encryptionSteps2, setEncryptionSteps2] = useState<string[]>([])
+  const [decryptionSteps2, setDecryptionSteps2] = useState<string[]>([])
 
   const handleEncrypt = () => {
     if (!key || !plaintext) {
@@ -21,13 +26,14 @@ const PlayFairRailFenceProduct = () => {
       return
     }
 
-    const { matrix } = generatePlayfairMatrix(key)
-    const { ciphertext: playfairCipher } = encrypt(plaintext, matrix)
-
+    const { matrix, steps: matrixSteps } = generatePlayfairMatrix(key)
+    const { ciphertext: playfairCipher, steps: playfairEncryptSteps } = encrypt(plaintext, matrix)
     setCiphertext(playfairCipher)
-
-    const { ciphertext: railFenceCipher } = encryptRailFence(playfairCipher, parseInt(depth))
+    setMatrixSteps(matrixSteps)
+    setEncryptionSteps(playfairEncryptSteps)
+    const { ciphertext: railFenceCipher, steps: railFenceEncryptSteps } = encryptRailFence(playfairCipher, parseInt(depth))
     setCiphertext(railFenceCipher)
+    setEncryptionSteps2(railFenceEncryptSteps)
   }
 
   const handleDecrypt = () => {
@@ -35,13 +41,13 @@ const PlayFairRailFenceProduct = () => {
       alert("Key and Ciphertext are required")
       return
     }
-    const { plaintext: decryptedRailFence } = decryptRailFence(ciphertext, parseInt(depth))
+    const { plaintext: decryptedRailFence, steps: railfenceDecryptSteps } = decryptRailFence(ciphertext, parseInt(depth))
     setDecryptedText(decryptedRailFence)
-
+    setDecryptionSteps(railfenceDecryptSteps)
     const { matrix } = generatePlayfairMatrix(key)
-    const { plaintext: decryptedPlayfair } = decrypt(decryptedRailFence, matrix)
-
-    setDecryptedText(decryptedPlayfair) 
+    const { plaintext: decryptedPlayfair, steps: playfairDecryptSteps } = decrypt(decryptedRailFence, matrix)
+    setDecryptedText(decryptedPlayfair)
+    setDecryptionSteps2(playfairDecryptSteps) 
 
   }
 
@@ -70,6 +76,46 @@ const PlayFairRailFenceProduct = () => {
         <div>
           <Label>Decrypted Ciphertext</Label>
           <Input value={decryptedText} readOnly />
+        </div>
+        <div>
+          <h4 className="font-semibold">Playfair Matrix:</h4>
+          {matrixSteps.map((step, index) => (
+            <pre key={`matrix-${index}`} className="whitespace-pre-wrap bg-gray-100 p-2 rounded mt-2">
+              {step}
+            </pre>
+          ))}
+        </div>
+        <div>
+          <h4 className="font-semibold">Encryption Steps (Playfair):</h4>
+          {encryptionSteps.map((step, index) => (
+            <pre key={`encrypt-${index}`} className="whitespace-pre-wrap bg-gray-100 p-2 rounded mt-2">
+              {step}
+            </pre>
+          ))}
+        </div>
+        <div>
+          <h4 className="font-semibold">Encryption Steps (RailFence):</h4>
+          {encryptionSteps2.map((step, index) => (
+            <pre key={`encrypt-${index}`} className="whitespace-pre-wrap bg-gray-100 p-2 rounded mt-2">
+              {step}
+            </pre>
+          ))}
+        </div>
+        <div>
+          <h4 className="font-semibold">Decryption Steps: (Railfence)</h4>
+          {decryptionSteps.map((step, index) => (
+            <pre key={`decrypt-${index}`} className="whitespace-pre-wrap bg-gray-100 p-2 rounded mt-2">
+              {step}
+            </pre>
+          ))}
+        </div>
+        <div>
+          <h4 className="font-semibold">Decryption Steps: (PlayFair)</h4>
+          {decryptionSteps2.map((step, index) => (
+            <pre key={`decrypt-${index}`} className="whitespace-pre-wrap bg-gray-100 p-2 rounded mt-2">
+              {step}
+            </pre>
+          ))}
         </div>
       </div>
     </div>
