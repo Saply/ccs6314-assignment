@@ -1,118 +1,129 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { GCD, modInverse, phiFunction, power } from "../utils/modularInverse"
 
-export default function RSAEncryption() {
-  const [p, setP] = useState("")
-  const [q, setQ] = useState("")
-  const [e, setE] = useState("")
-  const [message, setMessage] = useState("")
-  const [publicKey, setPublicKey] = useState({ n: "", e: "" })
-  const [privateKey, setPrivateKey] = useState({ n: "", d: "" })
-  const [encryptedMessage, setEncryptedMessage] = useState("")
-  const [decryptedMessage, setDecryptedMessage] = useState("")
-
-  const [steps, setSteps] = useState({
+export default function RSAEncryption({ state, setState }) {
+  const [localSteps, setLocalSteps] = useState({
     keyGeneration: [],
     encryption: [],
     decryption: [],
   })
 
+  useEffect(() => {
+    setState((prevState) => ({
+      ...prevState,
+      steps: localSteps,
+    }))
+  }, [localSteps, setState])
+
   // key generation logic
   const generateKeys = () => {
-    const n = Number(p) * Number(q)
-    const newP = Number(p) - 1
-    const newQ = Number(q) - 1
+    const n = Number(state.p) * Number(state.q)
+    const newP = Number(state.p) - 1
+    const newQ = Number(state.q) - 1
     const phi = newP * newQ
-    const d = modInverse(e, phi)
+    const d = modInverse(Number(state.e), phi)
 
-    // "<u>Step 3: Choose e such that 1 < e < φ(n) and gcd(e, φ(n)) = 1></u>",
-    setSteps((prevSteps) => ({
-      ...prevSteps,
-      keyGeneration: [
-        "<u>Step 1: Calculate n = p * q</u>",
-        `p = ${p}   q = ${q}`,
-        `<b>Value of n = ${n}</b>`,
-        "<u>Step 2: Calculate φ(n) = (p-1) * (q-1)</u>",
-        `φ(${n}) = (${p} - 1) * (${q} - 1)`,
-        `φ(${n}) = (${newP}) * (${newQ})`,
-        `φ(${n}) = ${newP * newQ}`,
-        "<u>Step 3: Verify that gcd(e, φ(n)) = 1 (coprime) AND 1 < e < φ(n)",
-        `GCD(${e}, ${phi}) = ${GCD(e, phi)}`,
-        `1 < ${e} < ${phi}`,
-        "<u>Step 4: Calculate d such that e * d = 1 (mod φ(n))</u>",
-        `d = ${e}^(-1) mod ${phi}`,
-        `d = ${e}^(φ(${phi}) - 1) mod ${phi}`,
-        `d = ${e}^(${phiFunction(phi)-1}) mod ${phi}`,
-        `<b>d = ${d}</b>`,
-        "<u>Step 5: Verify if e * d (mod φ(n)) = 1</u>",
-        `${e} * ${d} mod φ(${n}) = ${e*d % phi}`,
-        "<u>Step 6: Obtain Public and Private Keys</u>",
-        `Public Key (e, n): (${e}, ${n})`,
-        `Private Key (d, n): (${d}, ${n})`,
-      ],
+    const keyGenerationSteps = [
+      "<u>Step 1: Calculate n = p * q</u>",
+      `p = ${state.p}  \t q = ${state.q}`,
+      `<b>Value of n = ${n}</b>`,
+      "<u>Step 2: Calculate φ(n) = (p-1) * (q-1)</u>",
+      `φ(${n}) = (${state.p} - 1) * (${state.q} - 1)`,
+      `φ(${n}) = (${newP}) * (${newQ})`,
+      `φ(${n}) = ${newP * newQ}`,
+      "<u>Step 3: Verify that gcd(e, φ(n)) = 1 (coprime) AND 1 < e < φ(n)</u>",
+      `GCD(${state.e}, ${phi}) = ${GCD(Number(state.e), phi)}`,
+      `1 < ${state.e} < ${phi}`,
+      "<u>Step 4: Calculate d such that e * d = 1 (mod φ(n))</u>",
+      `d = ${state.e}^(-1) mod ${phi}`,
+      `d = ${state.e}^(φ(${phi}) - 1) mod ${phi}`,
+      `d = ${state.e}^(${phiFunction(phi) - 1}) mod ${phi}`,
+      `<b>d = ${d}</b>`,
+      "<u>Step 5: Verify if e * d (mod φ(n)) = 1</u>",
+      `${state.e} * ${d} mod φ(${n}) = ${(Number(state.e) * d) % phi}`,
+      "<u>Step 6: Obtain Public and Private Keys</u>",
+      `Public Key (e, n): (${state.e}, ${n})`,
+      `Private Key (d, n): (${d}, ${n})`,
+    ]
+
+    setState((prevState) => ({
+      ...prevState,
+      publicKey: { n: n, e: Number.parseInt(state.e, 10) },
+      privateKey: { n: n, d: d },
     }))
-    setPublicKey({ n: n, e: parseInt(e, 10) })
-    setPrivateKey({ n: n, d: d })
+
+    setLocalSteps((prevSteps) => ({
+      ...prevSteps,
+      keyGeneration: keyGenerationSteps,
+    }))
   }
 
   // Encryption logic
   const encryptMessage = () => {
-    console.log(publicKey)
-    console.log(privateKey)
-    let encryptionSteps = [`<u>Step 1: Encode plaintext message '${message}' to number m in ASCII representation</u>`]
-    let cipherSteps = []
-    
-    let msgArray = message.split("").map((char) => {
+    let encryptionSteps = [
+      `<u>Step 1: Encode plaintext message '${state.message}' to number m in ASCII representation</u>`,
+    ]
+    const cipherSteps = []
+
+    const msgArray = state.message.split("").map((char) => {
       const ascii = char.charCodeAt(0)
-      const encrypted = power(
-        ascii, publicKey.e, publicKey.n
-      )
+      const encrypted = power(ascii, state.publicKey.e, state.publicKey.n)
       const encryptedAscii = String.fromCharCode(encrypted)
       encryptionSteps.push(`${char}: ${ascii}`)
-      cipherSteps.push(`${ascii}^${publicKey.e} mod ${publicKey.n} = <b>${encrypted}</b> → ${encryptedAscii}`)
+      cipherSteps.push(
+        `${ascii}^${state.publicKey.e} mod ${state.publicKey.n} = <b>${encrypted}</b> → ${encryptedAscii}`,
+      )
 
       return encryptedAscii
     })
-    // console.log(cipherSteps)
+
     encryptionSteps.push("<u>Step 2: Calculate ciphertext: c = m^e mod n then encode back to ASCII</u>")
     encryptionSteps = encryptionSteps.concat(cipherSteps)
 
-    setSteps((prevSteps) => ({
+    setState((prevState) => ({
+      ...prevState,
+      encryptedMessage: msgArray.join(""),
+    }))
+
+    setLocalSteps((prevSteps) => ({
       ...prevSteps,
       encryption: encryptionSteps,
     }))
-    setEncryptedMessage(msgArray.join(""))
   }
 
   const decryptMessage = () => {
     let decryptionSteps = [`<u>Step 1: Encode encrypted message to number m in ASCII representation</u>`]
-    let plaintextSteps = []
-    let decryptedMessage = encryptedMessage.split("").map((char) => {
-      let ascii = char.charCodeAt(0)
-      let decrypted = power(
-        ascii, privateKey.d, privateKey.n
-      )
-      let decryptedAscii = String.fromCharCode(decrypted)
+    const plaintextSteps = []
+    const decryptedMessage = state.encryptedMessage.split("").map((char) => {
+      const ascii = char.charCodeAt(0)
+      const decrypted = power(ascii, state.privateKey.d, state.privateKey.n)
+      const decryptedAscii = String.fromCharCode(decrypted)
       decryptionSteps.push(`${char}: ${ascii}`)
-      plaintextSteps.push(`${ascii}^${privateKey.d} mod ${privateKey.n} = <b>${decrypted}</b> → ${decryptedAscii}`)
+      plaintextSteps.push(
+        `${ascii}^${state.privateKey.d} mod ${state.privateKey.n} = <b>${decrypted}</b> → ${decryptedAscii}`,
+      )
 
       return decryptedAscii
     })
 
-    decryptionSteps.push("<u>Step 2: Calculate plaintext: m = c^d mod n then encode back to ASCII")
+    decryptionSteps.push("<u>Step 2: Calculate plaintext: m = c^d mod n then encode back to ASCII</u>")
     decryptionSteps = decryptionSteps.concat(plaintextSteps)
 
-    setSteps((prevSteps) => ({
+    setState((prevState) => ({
+      ...prevState,
+      decryptedMessage: decryptedMessage.join(""),
+    }))
+
+    setLocalSteps((prevSteps) => ({
       ...prevSteps,
       decryption: decryptionSteps,
     }))
-    setDecryptedMessage(decryptedMessage.join(""))
   }
 
   return (
@@ -120,23 +131,38 @@ export default function RSAEncryption() {
       <div className="grid grid-cols-3 gap-4">
         <div>
           <Label htmlFor="rsa-p">Prime p</Label>
-          <Input id="rsa-p" value={p} onChange={(e) => setP(e.target.value)} placeholder="Enter prime p" />
+          <Input
+            id="rsa-p"
+            value={state.p}
+            onChange={(e) => setState((prev) => ({ ...prev, p: e.target.value }))}
+            placeholder="Enter prime p"
+          />
         </div>
         <div>
           <Label htmlFor="rsa-q">Prime q</Label>
-          <Input id="rsa-q" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Enter prime q" />
+          <Input
+            id="rsa-q"
+            value={state.q}
+            onChange={(e) => setState((prev) => ({ ...prev, q: e.target.value }))}
+            placeholder="Enter prime q"
+          />
         </div>
         <div>
           <Label htmlFor="rsa-e">Public exponent e</Label>
-          <Input id="rsa-e" value={e} onChange={(e) => setE(e.target.value)} placeholder="Enter public exponent e" />
+          <Input
+            id="rsa-e"
+            value={state.e}
+            onChange={(e) => setState((prev) => ({ ...prev, e: e.target.value }))}
+            placeholder="Enter public exponent e"
+          />
         </div>
       </div>
       <div>
         <Label htmlFor="rsa-message">Message</Label>
         <Input
           id="rsa-message"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
+          value={state.message}
+          onChange={(e) => setState((prev) => ({ ...prev, message: e.target.value }))}
           placeholder="Enter message to encrypt"
         />
       </div>
@@ -149,7 +175,7 @@ export default function RSAEncryption() {
           <CardTitle>Key Generation Steps</CardTitle>
         </CardHeader>
         <CardContent>
-          {steps.keyGeneration.map((step, index) => (
+          {localSteps.keyGeneration.map((step, index) => (
             <p key={`keygen-${index}`} dangerouslySetInnerHTML={{ __html: step }} />
           ))}
         </CardContent>
@@ -160,7 +186,7 @@ export default function RSAEncryption() {
           <CardTitle>Encryption Steps</CardTitle>
         </CardHeader>
         <CardContent>
-          {steps.encryption.map((step, index) => (
+          {localSteps.encryption.map((step, index) => (
             <p key={`encrypt-${index}`} dangerouslySetInnerHTML={{ __html: step }} />
           ))}
         </CardContent>
@@ -171,7 +197,7 @@ export default function RSAEncryption() {
           <CardTitle>Decryption Steps</CardTitle>
         </CardHeader>
         <CardContent>
-          {steps.decryption.map((step, index) => (
+          {localSteps.decryption.map((step, index) => (
             <p key={`decrypt-${index}`} dangerouslySetInnerHTML={{ __html: step }} />
           ))}
         </CardContent>
@@ -179,19 +205,19 @@ export default function RSAEncryption() {
 
       <div>
         <Label>Public Key</Label>
-        <Input value={`(${publicKey.n}, ${publicKey.e})`} readOnly />
+        <Input value={`(${state.publicKey.e}, ${state.publicKey.n})`} readOnly />
       </div>
       <div>
         <Label>Private Key</Label>
-        <Input value={`(${privateKey.n}, ${privateKey.d})`} readOnly />
+        <Input value={`(${state.privateKey.d}, ${state.privateKey.n})`} readOnly />
       </div>
       <div>
         <Label>Encrypted Message</Label>
-        <Input value={encryptedMessage} readOnly />
+        <Input value={state.encryptedMessage} readOnly />
       </div>
       <div>
         <Label>Decrypted Message</Label>
-        <Input value={decryptedMessage} readOnly />
+        <Input value={state.decryptedMessage} readOnly />
       </div>
     </div>
   )

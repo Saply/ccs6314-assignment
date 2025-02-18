@@ -1,3 +1,4 @@
+"use client"
 import PlayfairCipher from "@/components/PlayfairCipher"
 import RailFenceCipher from "@/components/RailFenceCipher"
 import RSAEncryption from "@/components/RSAEncryption"
@@ -5,8 +6,34 @@ import KeyGeneration from "@/components/KeyGeneration"
 import AESEncryption from "@/components/AESEncryption"
 import PlayFairRailFenceProduct from "@/components/PlayFairRailFenceProduct"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useState } from "react"
 
 export default function Home() {
+  const [rsaState, setRsaState] = useState({
+    p: "",
+    q: "",
+    e: "",
+    message: "",
+    publicKey: { n: "", e: "" },
+    privateKey: { n: "", d: "" },
+    encryptedMessage: "",
+    decryptedMessage: "",
+    steps: {
+      keyGeneration: [],
+      encryption: [],
+      decryption: [],
+    },
+  })
+
+  const [keyGenState, setKeyGenState] = useState({
+    personBPublicKey: { n: "", e: "" },
+    personBPrivateKey: { n: "", d: "" },
+    symmetricKey: "",
+    encryptedSymmetricKey: "",
+    decryptedSymmetricKey: "",
+    steps: [],
+  })
+
   return (
     <main className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">Cryptography Assignment</h1>
@@ -29,10 +56,10 @@ export default function Home() {
               <TabsTrigger value="keyexchange">Key Generation</TabsTrigger>
             </TabsList>
             <TabsContent value="rsa">
-              <RSAEncryption />
+              <RSAEncryption state={rsaState} setState={setRsaState} />
             </TabsContent>
             <TabsContent value="keyexchange">
-              <KeyGeneration />
+              <KeyGeneration state={keyGenState} setState={setKeyGenState} />
             </TabsContent>
           </Tabs>
         </div>

@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -23,52 +22,56 @@ const rsaDecrypt = (ciphertext: string, d: string, n: string) => {
   return `Decrypted(${ciphertext})`
 }
 
-export default function KeyGeneration() {
-  const [personBPublicKey, setPersonBPublicKey] = useState({ n: "", e: "" })
-  const [personBPrivateKey, setPersonBPrivateKey] = useState({ n: "", d: "" })
-  const [symmetricKey, setSymmetricKey] = useState("")
-  const [encryptedSymmetricKey, setEncryptedSymmetricKey] = useState("")
-  const [decryptedSymmetricKey, setDecryptedSymmetricKey] = useState("")
-
-  const [steps, setSteps] = useState<string[]>([])
-
+export default function KeyGeneration({ state, setState }) {
   const generateKey = () => {
     const key = generateRandomHexKey()
-    setSymmetricKey(key)
-    setSteps([`Step 1: Person A generates random symmetric key: <b>${key}</b>`])
+    setState((prevState) => ({
+      ...prevState,
+      symmetricKey: key,
+      steps: [`Step 1: Person A generates random symmetric key: <b>${key}</b>`],
+    }))
   }
 
   const encryptKey = () => {
-    if (!symmetricKey) {
+    if (!state.symmetricKey) {
       alert("Please generate a symmetric key first.")
       return
     }
-    const encrypted = rsaEncrypt(symmetricKey, personBPublicKey.e, personBPublicKey.n)
-    setEncryptedSymmetricKey(encrypted)
-    setSteps((prevSteps) => [
-      ...prevSteps,
-      `Step 2: Person A encrypts symmetric key with Person B's public key: <b>${encrypted}</b>`,
-    ])
+    const encrypted = rsaEncrypt(state.symmetricKey, state.personBPublicKey.e, state.personBPublicKey.n)
+    setState((prevState) => ({
+      ...prevState,
+      encryptedSymmetricKey: encrypted,
+      steps: [
+        ...prevState.steps,
+        `Step 2: Person A encrypts symmetric key with Person B's public key: <b>${encrypted}</b>`,
+      ],
+    }))
   }
 
   const decryptKey = () => {
-    if (!encryptedSymmetricKey) {
+    if (!state.encryptedSymmetricKey) {
       alert("Please encrypt the symmetric key first.")
       return
     }
-    const decrypted = rsaDecrypt(encryptedSymmetricKey, personBPrivateKey.d, personBPrivateKey.n)
-    setDecryptedSymmetricKey(decrypted)
-    setSteps((prevSteps) => [
-      ...prevSteps,
-      `Step 3: Person B decrypts the symmetric key: <b>${decrypted}</b>`,
-      `Step 4: Verify that the decrypted key matches the original: <b>${decrypted === symmetricKey}</b>`,
-    ])
+    const decrypted = rsaDecrypt(state.encryptedSymmetricKey, state.personBPrivateKey.d, state.personBPrivateKey.n)
+    setState((prevState) => ({
+      ...prevState,
+      decryptedSymmetricKey: decrypted,
+      steps: [
+        ...prevState.steps,
+        `Step 3: Person B decrypts the symmetric key: <b>${decrypted}</b>`,
+        `Step 4: Verify that the decrypted key matches the original: <b>${decrypted === state.symmetricKey}</b>`,
+      ],
+    }))
   }
 
   const clearSteps = () => {
-    setSteps([])
-    setEncryptedSymmetricKey("")
-    setDecryptedSymmetricKey("")
+    setState((prevState) => ({
+      ...prevState,
+      encryptedSymmetricKey: "",
+      decryptedSymmetricKey: "",
+      steps: [],
+    }))
   }
 
   return (
@@ -82,14 +85,24 @@ export default function KeyGeneration() {
             <div className="space-y-2">
               <Label>Person B's Public Key - Modulus (n)</Label>
               <Input
-                value={personBPublicKey.n}
-                onChange={(e) => setPersonBPublicKey((prev) => ({ ...prev, n: e.target.value }))}
+                value={state.personBPublicKey.n}
+                onChange={(e) =>
+                  setState((prevState) => ({
+                    ...prevState,
+                    personBPublicKey: { ...prevState.personBPublicKey, n: e.target.value },
+                  }))
+                }
                 placeholder="Enter Person B's public key modulus (n)"
               />
               <Label>Person B's Public Key - Public Exponent (e)</Label>
               <Input
-                value={personBPublicKey.e}
-                onChange={(e) => setPersonBPublicKey((prev) => ({ ...prev, e: e.target.value }))}
+                value={state.personBPublicKey.e}
+                onChange={(e) =>
+                  setState((prevState) => ({
+                    ...prevState,
+                    personBPublicKey: { ...prevState.personBPublicKey, e: e.target.value },
+                  }))
+                }
                 placeholder="Enter Person B's public exponent (e)"
               />
             </div>
@@ -97,8 +110,8 @@ export default function KeyGeneration() {
               <Label>Symmetric Key (16 hex digits)</Label>
               <div className="flex space-x-2">
                 <Input
-                  value={symmetricKey}
-                  onChange={(e) => setSymmetricKey(e.target.value)}
+                  value={state.symmetricKey}
+                  onChange={(e) => setState((prevState) => ({ ...prevState, symmetricKey: e.target.value }))}
                   placeholder="16 hex digits"
                   maxLength={16}
                   pattern="[0-9a-fA-F]{16}"
@@ -109,7 +122,7 @@ export default function KeyGeneration() {
             <Button onClick={encryptKey}>Encrypt Key for Person B</Button>
             <div>
               <Label>Encrypted Symmetric Key</Label>
-              <Input value={encryptedSymmetricKey} readOnly />
+              <Input value={state.encryptedSymmetricKey} readOnly />
             </div>
           </CardContent>
         </Card>
@@ -121,21 +134,31 @@ export default function KeyGeneration() {
             <div>
               <Label>Private Key - Private Exponent (d)</Label>
               <Input
-                value={personBPrivateKey.d}
-                onChange={(e) => setPersonBPrivateKey((prev) => ({ ...prev, d: e.target.value }))}
+                value={state.personBPrivateKey.d}
+                onChange={(e) =>
+                  setState((prevState) => ({
+                    ...prevState,
+                    personBPrivateKey: { ...prevState.personBPrivateKey, d: e.target.value },
+                  }))
+                }
                 placeholder="Enter private exponent (d)"
               />
               <Label>Private Key - Modulus (n)</Label>
               <Input
-                value={personBPrivateKey.n}
-                onChange={(e) => setPersonBPrivateKey((prev) => ({ ...prev, n: e.target.value }))}
+                value={state.personBPrivateKey.n}
+                onChange={(e) =>
+                  setState((prevState) => ({
+                    ...prevState,
+                    personBPrivateKey: { ...prevState.personBPrivateKey, n: e.target.value },
+                  }))
+                }
                 placeholder="Enter modulus (n)"
               />
             </div>
             <Button onClick={decryptKey}>Decrypt Received Key</Button>
             <div>
               <Label>Decrypted Symmetric Key</Label>
-              <Input value={decryptedSymmetricKey} readOnly />
+              <Input value={state.decryptedSymmetricKey} readOnly />
             </div>
           </CardContent>
         </Card>
@@ -150,7 +173,7 @@ export default function KeyGeneration() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {steps.map((step, index) => (
+          {state.steps.map((step, index) => (
             <p key={`step-${index}`} className="mb-2" dangerouslySetInnerHTML={{ __html: step }} />
           ))}
         </CardContent>
