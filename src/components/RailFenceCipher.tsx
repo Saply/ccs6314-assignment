@@ -78,17 +78,25 @@ export default function RailFenceCipher() {
   const [decryptedText, setDecryptedText] = useState("")
   const [encryptionSteps, setEncryptionSteps] = useState<string[]>([])
   const [decryptionSteps, setDecryptionSteps] = useState<string[]>([])
+  const [encryptionTime, setEncryptionTime] = useState(0)
+  const [decryptionTime, setDecryptionTime] = useState(0)
 
   const handleEncrypt = () => {
+    const startTime = performance.now()
     const { ciphertext, steps } = encryptRailFence(plaintext, depth)
+    const endTime = performance.now()
     setCiphertext(ciphertext)
     setEncryptionSteps(steps)
+    setEncryptionTime(endTime - startTime)
   }
 
   const handleDecrypt = () => {
+    const startTime = performance.now()
     const { plaintext, steps } = decryptRailFence(ciphertext, depth)
+    const endTime = performance.now()
     setDecryptedText(plaintext)
     setDecryptionSteps(steps)
+    setDecryptionTime(endTime - startTime)
   }
 
   return (
@@ -129,6 +137,16 @@ export default function RailFenceCipher() {
           <Label htmlFor="rail-fence-decrypted">Decrypted Text</Label>
           <Textarea id="rail-fence-decrypted" value={decryptedText} readOnly placeholder="Decrypted text" />
         </div>
+        {/* Display Encryption and Decryption Times */}
+        <div>
+          <h4 className="font-semibold">Encryption Time:</h4>
+          <p>{encryptionTime.toFixed(20)} ms</p>
+        </div>
+        <div>
+          <h4 className="font-semibold">Decryption Time:</h4>
+          <p>{decryptionTime.toFixed(20)} ms</p>
+        </div>
+
         <div>
           <h4 className="font-semibold">Encryption Steps:</h4>
           {encryptionSteps.map((step, index) => (

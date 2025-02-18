@@ -19,19 +19,23 @@ const PlayFairRailFenceProduct = () => {
   const [decryptionSteps, setDecryptionSteps] = useState<string[]>([])
   const [encryptionSteps2, setEncryptionSteps2] = useState<string[]>([])
   const [decryptionSteps2, setDecryptionSteps2] = useState<string[]>([])
+  const [encryptionTime, setEncryptionTime] = useState(0)
+  const [decryptionTime, setDecryptionTime] = useState(0)
 
   const handleEncrypt = () => {
     if (!key || !plaintext) {
       alert("Key and Plaintext are required")
       return
     }
-
+    const startTime = performance.now()
     const { matrix, steps: matrixSteps } = generatePlayfairMatrix(key)
     const { ciphertext: playfairCipher, steps: playfairEncryptSteps } = encrypt(plaintext, matrix)
     setCiphertext(playfairCipher)
     setMatrixSteps(matrixSteps)
     setEncryptionSteps(playfairEncryptSteps)
     const { ciphertext: railFenceCipher, steps: railFenceEncryptSteps } = encryptRailFence(playfairCipher, parseInt(depth))
+    const endTime = performance.now()
+    setEncryptionTime(endTime - startTime)
     setCiphertext(railFenceCipher)
     setEncryptionSteps2(railFenceEncryptSteps)
   }
@@ -41,11 +45,14 @@ const PlayFairRailFenceProduct = () => {
       alert("Key and Ciphertext are required")
       return
     }
+    const startTime = performance.now()
     const { plaintext: decryptedRailFence, steps: railfenceDecryptSteps } = decryptRailFence(ciphertext, parseInt(depth))
     setDecryptedText(decryptedRailFence)
     setDecryptionSteps(railfenceDecryptSteps)
     const { matrix } = generatePlayfairMatrix(key)
     const { plaintext: decryptedPlayfair, steps: playfairDecryptSteps } = decrypt(decryptedRailFence, matrix)
+    const endTime = performance.now()
+    setDecryptionTime(endTime - startTime)
     setDecryptedText(decryptedPlayfair)
     setDecryptionSteps2(playfairDecryptSteps) 
 
@@ -76,6 +83,15 @@ const PlayFairRailFenceProduct = () => {
         <div>
           <Label>Decrypted Ciphertext</Label>
           <Input value={decryptedText} readOnly />
+        </div>
+        {/* Display Encryption and Decryption Times */}
+        <div>
+          <h4 className="font-semibold">Encryption Time:</h4>
+          <p>{encryptionTime.toFixed(20)} ms</p>
+        </div>
+        <div>
+          <h4 className="font-semibold">Decryption Time:</h4>
+          <p>{decryptionTime.toFixed(20)} ms</p>
         </div>
         <div>
           <h4 className="font-semibold">Playfair Matrix:</h4>

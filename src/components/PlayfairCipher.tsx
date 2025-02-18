@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 
-export const generatePlayfairMatrix = (key: string): { matrix: string[][]; steps: string[] } => {
+export const generatePlayfairMatrix = (key: string): { matrix: string[][]; steps: string[]} => {
   const alphabet = "ABCDEFGHIKLMNOPQRSTUVWXYZ"
   const uniqueChars = Array.from(new Set(key.toUpperCase().replace(/J/g, "I") + alphabet))
   console.log(uniqueChars)
@@ -19,10 +19,11 @@ export const generatePlayfairMatrix = (key: string): { matrix: string[][]; steps
     matrix.map((row) => row.join(" ")).join("\n"),
   ]
 
-  return { matrix, steps }
+  return { matrix, steps}
 }
 
-export const encrypt = (plaintext: string, matrix: string[][]): { ciphertext: string; steps: string[] } => {
+export const encrypt = (plaintext: string, matrix: string[][]): { ciphertext: string; steps: string[]} => {
+
   const steps: string[] = []
   let ciphertext = ""
   const pairs =
@@ -37,10 +38,12 @@ export const encrypt = (plaintext: string, matrix: string[][]): { ciphertext: st
 
   steps.push(`Plaintext pairs: ${pairs.join(" ")}`)
 
+  //If both letters in a pair are the same, the second letter is replaced with 'X
   for (const pair of pairs) {
     let [a, b] = pair.split("")
     if (a === b) b = "X"
-
+  
+    //Finds the row and column of both letters (a and b) in the Playfair matrix.
     let rowA, colA, rowB, colB
     for (let i = 0; i < 5; i++) {
       for (let j = 0; j < 5; j++) {
@@ -67,11 +70,11 @@ export const encrypt = (plaintext: string, matrix: string[][]): { ciphertext: st
     steps.push(`${pair} -> ${encryptedPair}`)
     ciphertext += encryptedPair
   }
-
-  return { ciphertext, steps }
+  return { ciphertext, steps}
 }
 
-export const decrypt = (ciphertext: string, matrix: string[][]): { plaintext: string; steps: string[] } => {
+export const decrypt = (ciphertext: string, matrix: string[][]): { plaintext: string; steps: string[]} => {
+
   const steps: string[] = []
   let plaintext = ""
   const pairs = ciphertext.match(/[A-Z]{2}/g) || []
@@ -108,7 +111,7 @@ export const decrypt = (ciphertext: string, matrix: string[][]): { plaintext: st
     plaintext += decryptedPair
   }
 
-  return { plaintext, steps }
+  return { plaintext, steps}
 }
 
 export default function PlayfairCipher() {
@@ -119,21 +122,33 @@ export default function PlayfairCipher() {
   const [matrixSteps, setMatrixSteps] = useState<string[]>([])
   const [encryptionSteps, setEncryptionSteps] = useState<string[]>([])
   const [decryptionSteps, setDecryptionSteps] = useState<string[]>([])
+  const [encryptionTime, setEncryptionTime] = useState(0)
+  const [decryptionTime, setDecryptionTime] = useState(0)
 
   const handleEncrypt = () => {
-    const { matrix, steps: matrixSteps } = generatePlayfairMatrix(key)
-    const { ciphertext, steps: encryptSteps } = encrypt(plaintext, matrix)
+    const startTime = performance.now()
+    const { matrix, steps: matrixSteps} = generatePlayfairMatrix(key)
+    const { ciphertext, steps: encryptSteps} = encrypt(plaintext, matrix)
+    const endTime = performance.now()
+    const time = endTime - startTime
+    console.log(time)
     setCiphertext(ciphertext)
     setMatrixSteps(matrixSteps)
     setEncryptionSteps(encryptSteps)
+    setEncryptionTime(time)
   }
 
   const handleDecrypt = () => {
-    const { matrix, steps: matrixSteps } = generatePlayfairMatrix(key)
-    const { plaintext, steps: decryptSteps } = decrypt(ciphertext, matrix)
+    const startTime = performance.now()
+    const { matrix, steps: matrixSteps} = generatePlayfairMatrix(key)
+    const { plaintext, steps: decryptSteps} = decrypt(ciphertext, matrix)
+    const endTime = performance.now()
+    const time = endTime - startTime
+    console.log(time)
     setDecryptedText(plaintext)
     setMatrixSteps(matrixSteps)
     setDecryptionSteps(decryptSteps)
+    setDecryptionTime(time)
   }
 
   return (
@@ -167,6 +182,15 @@ export default function PlayfairCipher() {
         <div>
           <Label htmlFor="playfair-decrypted">Decrypted Text</Label>
           <Textarea id="playfair-decrypted" value={decryptedText} readOnly placeholder="Decrypted text" />
+        </div>
+        {/* Display Encryption and Decryption Times */}
+        <div>
+          <h4 className="font-semibold">Encryption Time:</h4>
+          <p>{encryptionTime.toFixed(20)} ms</p>
+        </div>
+        <div>
+          <h4 className="font-semibold">Decryption Time:</h4>
+          <p>{decryptionTime.toFixed(20)} ms</p>
         </div>
         <div>
           <h4 className="font-semibold">Playfair Matrix:</h4>
