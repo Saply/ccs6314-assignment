@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-const { GCD, modInverse, phiFunction, power } = require("../utils/modularInverse")
+import { GCD, modInverse, phiFunction, power } from "../utils/modularInverse"
 
-export default function RSA() {
+export default function RSAEncryption() {
   const [p, setP] = useState("")
   const [q, setQ] = useState("")
   const [e, setE] = useState("")
@@ -25,11 +25,11 @@ export default function RSA() {
 
   // key generation logic
   const generateKeys = () => {
-    var n = p * q
-    var newP = p - 1
-    var newQ = q - 1
-    var phi = newP * newQ
-    var d = modInverse(e, phi)
+    const n = Number(p) * Number(q)
+    const newP = Number(p) - 1
+    const newQ = Number(q) - 1
+    const phi = newP * newQ
+    const d = modInverse(e, phi)
 
     // "<u>Step 3: Choose e such that 1 < e < φ(n) and gcd(e, φ(n)) = 1></u>",
     setSteps((prevSteps) => ({
@@ -68,12 +68,12 @@ export default function RSA() {
     let encryptionSteps = [`<u>Step 1: Encode plaintext message '${message}' to number m in ASCII representation</u>`]
     let cipherSteps = []
     
-    var msgArray = message.split("").map((char) => {
-      var ascii = char.charCodeAt(0)
-      let encrypted = power(
+    let msgArray = message.split("").map((char) => {
+      const ascii = char.charCodeAt(0)
+      const encrypted = power(
         ascii, publicKey.e, publicKey.n
       )
-      let encryptedAscii = String.fromCharCode(encrypted)
+      const encryptedAscii = String.fromCharCode(encrypted)
       encryptionSteps.push(`${char}: ${ascii}`)
       cipherSteps.push(`${ascii}^${publicKey.e} mod ${publicKey.n} = <b>${encrypted}</b> → ${encryptedAscii}`)
 
@@ -116,85 +116,82 @@ export default function RSA() {
   }
 
   return (
-    <div className="border p-4 rounded-lg mb-4">
-      <h3 className="text-xl font-semibold mb-4">RSA Encryption</h3>
-      <div className="space-y-4">
-        <div className="grid grid-cols-3 gap-4">
-          <div>
-            <Label htmlFor="rsa-p">Prime p</Label>
-            <Input id="rsa-p" value={p} onChange={(e) => setP(e.target.value)} placeholder="Enter prime p" />
-          </div>
-          <div>
-            <Label htmlFor="rsa-q">Prime q</Label>
-            <Input id="rsa-q" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Enter prime q" />
-          </div>
-          <div>
-            <Label htmlFor="rsa-e">Modulus e</Label>
-            <Input id="rsa-e" value={e} onChange={(e) => setE(e.target.value)} placeholder="Enter modulus e" />
-          </div>
+    <div className="space-y-4">
+      <div className="grid grid-cols-3 gap-4">
+        <div>
+          <Label htmlFor="rsa-p">Prime p</Label>
+          <Input id="rsa-p" value={p} onChange={(e) => setP(e.target.value)} placeholder="Enter prime p" />
         </div>
         <div>
-          <Label htmlFor="rsa-message">Message</Label>
-          <Input
-            id="rsa-message"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Enter message to encrypt"
-          />
+          <Label htmlFor="rsa-q">Prime q</Label>
+          <Input id="rsa-q" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Enter prime q" />
         </div>
-        <Button onClick={generateKeys}>Generate Keys</Button>
-        <Button onClick={encryptMessage}>Encrypt</Button>
-        <Button onClick={decryptMessage}>Decrypt</Button>
+        <div>
+          <Label htmlFor="rsa-e">Public exponent e</Label>
+          <Input id="rsa-e" value={e} onChange={(e) => setE(e.target.value)} placeholder="Enter public exponent e" />
+        </div>
+      </div>
+      <div>
+        <Label htmlFor="rsa-message">Message</Label>
+        <Input
+          id="rsa-message"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="Enter message to encrypt"
+        />
+      </div>
+      <Button onClick={generateKeys}>Generate Keys</Button>
+      <Button onClick={encryptMessage}>Encrypt</Button>
+      <Button onClick={decryptMessage}>Decrypt</Button>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Key Generation Steps</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {steps.keyGeneration.map((step, index) => (
-               <p key={`keygen-${index}`} dangerouslySetInnerHTML={{ __html: step }} />
-            ))}
-          </CardContent>
-        </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Key Generation Steps</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {steps.keyGeneration.map((step, index) => (
+            <p key={`keygen-${index}`} dangerouslySetInnerHTML={{ __html: step }} />
+          ))}
+        </CardContent>
+      </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Encryption Steps</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {steps.encryption.map((step, index) => (
-              <p key={`encrypt-${index}`} dangerouslySetInnerHTML={{ __html: step }} />
-            ))}
-          </CardContent>
-        </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Encryption Steps</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {steps.encryption.map((step, index) => (
+            <p key={`encrypt-${index}`} dangerouslySetInnerHTML={{ __html: step }} />
+          ))}
+        </CardContent>
+      </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Decryption Steps</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {steps.decryption.map((step, index) => (
-              <p key={`decrypt-${index}`} dangerouslySetInnerHTML={{ __html: step }} />
-            ))}
-          </CardContent>
-        </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Decryption Steps</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {steps.decryption.map((step, index) => (
+            <p key={`decrypt-${index}`} dangerouslySetInnerHTML={{ __html: step }} />
+          ))}
+        </CardContent>
+      </Card>
 
-        <div>
-          <Label>Public Key</Label>
-          <Input value={`(${publicKey.e}, ${publicKey.n})`} readOnly />
-        </div>
-        <div>
-          <Label>Private Key</Label>
-          <Input value={`(${privateKey.d}, ${privateKey.n})`} readOnly />
-        </div>
-        <div>
-          <Label>Encrypted Message</Label>
-          <Input value={encryptedMessage} readOnly />
-        </div>
-        <div>
-          <Label>Decrypted Message</Label>
-          <Input value={decryptedMessage} readOnly />
-        </div>
+      <div>
+        <Label>Public Key</Label>
+        <Input value={`(${publicKey.n}, ${publicKey.e})`} readOnly />
+      </div>
+      <div>
+        <Label>Private Key</Label>
+        <Input value={`(${privateKey.n}, ${privateKey.d})`} readOnly />
+      </div>
+      <div>
+        <Label>Encrypted Message</Label>
+        <Input value={encryptedMessage} readOnly />
+      </div>
+      <div>
+        <Label>Decrypted Message</Label>
+        <Input value={decryptedMessage} readOnly />
       </div>
     </div>
   )
