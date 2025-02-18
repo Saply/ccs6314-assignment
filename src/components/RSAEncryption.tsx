@@ -8,18 +8,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { GCD, modInverse, phiFunction, power } from "../utils/modularInverse"
 
 export default function RSAEncryption({ state, setState }) {
-  const [localSteps, setLocalSteps] = useState({
-    keyGeneration: [],
-    encryption: [],
-    decryption: [],
-  })
+//   const [localSteps, setLocalSteps] = useState({
+//     keyGeneration: [],
+//     encryption: [],
+//     decryption: [],
+//   })
 
   useEffect(() => {
     setState((prevState) => ({
       ...prevState,
-      steps: localSteps,
     }))
-  }, [localSteps, setState])
+  }, [setState])
 
   // key generation logic
   const generateKeys = () => {
@@ -56,12 +55,16 @@ export default function RSAEncryption({ state, setState }) {
       ...prevState,
       publicKey: { n: n, e: Number.parseInt(state.e, 10) },
       privateKey: { n: n, d: d },
+      steps: {
+        ...prevState.steps,
+        keyGeneration: keyGenerationSteps
+      }
     }))
 
-    setLocalSteps((prevSteps) => ({
-      ...prevSteps,
-      keyGeneration: keyGenerationSteps,
-    }))
+    // setLocalSteps((prevSteps) => ({
+    //   ...prevSteps,
+    //   keyGeneration: keyGenerationSteps,
+    // }))
   }
 
   // Encryption logic
@@ -90,12 +93,16 @@ export default function RSAEncryption({ state, setState }) {
     setState((prevState) => ({
       ...prevState,
       encryptedMessage: msgArray.join(""),
+      steps: {
+        ...prevState.steps,
+        encryption: encryptionSteps
+      }
     }))
 
-    setLocalSteps((prevSteps) => ({
-      ...prevSteps,
-      encryption: encryptionSteps,
-    }))
+    // setLocalSteps((prevSteps) => ({
+    //   ...prevSteps,
+    //   encryption: encryptionSteps,
+    // }))
   }
 
   const decryptMessage = () => {
@@ -120,12 +127,16 @@ export default function RSAEncryption({ state, setState }) {
     setState((prevState) => ({
       ...prevState,
       decryptedMessage: decryptedMessage.join(""),
+      steps: {
+        ...prevState.steps,
+        decryption: decryptionSteps
+      }
     }))
 
-    setLocalSteps((prevSteps) => ({
-      ...prevSteps,
-      decryption: decryptionSteps,
-    }))
+    // setLocalSteps((prevSteps) => ({
+    //   ...prevSteps,
+    //   decryption: decryptionSteps,
+    // }))
   }
 
   return (
@@ -177,7 +188,7 @@ export default function RSAEncryption({ state, setState }) {
           <CardTitle>Key Generation Steps</CardTitle>
         </CardHeader>
         <CardContent>
-          {localSteps.keyGeneration.map((step, index) => (
+          {state.steps.keyGeneration.map((step, index) => (
             <p key={`keygen-${index}`} dangerouslySetInnerHTML={{ __html: step }} />
           ))}
         </CardContent>
@@ -188,7 +199,7 @@ export default function RSAEncryption({ state, setState }) {
           <CardTitle>Encryption Steps</CardTitle>
         </CardHeader>
         <CardContent>
-          {localSteps.encryption.map((step, index) => (
+          {state.steps.encryption.map((step, index) => (
             <p key={`encrypt-${index}`} dangerouslySetInnerHTML={{ __html: step }} />
           ))}
         </CardContent>
@@ -199,7 +210,7 @@ export default function RSAEncryption({ state, setState }) {
           <CardTitle>Decryption Steps</CardTitle>
         </CardHeader>
         <CardContent>
-          {localSteps.decryption.map((step, index) => (
+          {state.steps.decryption.map((step, index) => (
             <p key={`decrypt-${index}`} dangerouslySetInnerHTML={{ __html: step }} />
           ))}
         </CardContent>
