@@ -145,9 +145,9 @@ export default function KeyGeneration({ state, setState }) {
                 <Input
                   value={state.symmetricKey}
                   onChange={(e) => setState((prevState) => ({ ...prevState, symmetricKey: e.target.value }))}
-                  placeholder="16 hex digits"
-                  maxLength={16}
-                  pattern="[0-9a-fA-F]{16}"
+                  placeholder="32 hex digits"
+                  maxLength={32}
+                  pattern="[0-9a-fA-F]{32}"
                 />
                 <Button onClick={generateKey}>Generate</Button>
               </div>

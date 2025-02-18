@@ -37,7 +37,7 @@ export default function RSAEncryption({ state, setState }) {
       `φ(${n}) = (${newP}) * (${newQ})`,
       `<b>φ(${n}) = ${newP * newQ}</b>`,
       "<u>Step 3: Verify that gcd(e, φ(n)) = 1 (coprime) AND 1 < e < φ(n)</u>",
-      `GCD(${state.e}, ${phi}) = <b>${GCD(Number(state.e), phi)}</b>`,
+      `GCD(${state.e}, ${phi}) = <b>${GCD(Number(state.e), phi)} : ${GCD(Number(state.e), phi) === 1 ? "Coprime" : "Not coprime"}</b>`,
       `1 < ${state.e} < ${phi} <b>${state.e > 1 && state.e < phi}</b>`,
       "<u>Step 4: Calculate d such that e * d = 1 (mod φ(n))</u>",
       `d = ${state.e}^(-1) mod ${phi}`,
