@@ -266,26 +266,37 @@ const aesDecrypt = (input: number[], key: number[]): number[] => {
   return output
 }
 
+// Hex string to bytes converter
+const hexToBytes = (hex: string): number[] => {
+  const bytes = []
+  for (let i = 0; i < hex.length; i += 2) {
+    bytes.push(Number.parseInt(hex.substr(i, 2), 16))
+  }
+  return bytes
+}
+
 export default function AESEncryption() {
   const [key, setKey] = useState("")
   const [plaintext, setPlaintext] = useState("")
   const [ciphertext, setCiphertext] = useState("")
   const [decryptedText, setDecryptedText] = useState("")
+  const [convertedKey, setConvertedKey] = useState<number[] | null>(null)
 
-  // const generateKey = () => {
-  //   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+"
-  //   const randomKey = Array.from({ length: 16 }, () => characters[Math.floor(Math.random() * characters.length)]).join(
-  //     "",
-  //   )
-  //   setKey(randomKey)
-  // }
-
-  const handleEncrypt = () => {
-    if (key.length !== 16) {
-      alert("Please enter a 16-character key")
+  const handleConvertKey = () => {
+    if (key.length !== 32) {
+      alert("Please enter a 32-character hex string for the key (128-bit)")
       return
     }
-    const keyBytes = new TextEncoder().encode(key)
+    const bytes = hexToBytes(key)
+    setConvertedKey(bytes)
+  }
+
+  const handleEncrypt = () => {
+    if (key.length !== 32 && !convertedKey) {
+      alert("Please enter a 32-character hex string for the key (128-bit) or convert the key")
+      return
+    }
+    const keyBytes = convertedKey || hexToBytes(key)
     const textBytes = new TextEncoder().encode(plaintext)
 
     // PKCS7 padding
@@ -298,24 +309,24 @@ export default function AESEncryption() {
     let encryptedBytes: number[] = []
     for (let i = 0; i < paddedText.length; i += 16) {
       const block = Array.from(paddedText.slice(i, i + 16))
-      encryptedBytes = encryptedBytes.concat(aesEncrypt(block, Array.from(keyBytes)))
+      encryptedBytes = encryptedBytes.concat(aesEncrypt(block, keyBytes))
     }
 
     setCiphertext(btoa(String.fromCharCode.apply(null, encryptedBytes)))
   }
 
   const handleDecrypt = () => {
-    if (key.length !== 16) {
-      alert("Please enter a 16-character key")
+    if (key.length !== 32 && !convertedKey) {
+      alert("Please enter a 32-character hex string for the key (128-bit) or convert the key")
       return
     }
-    const keyBytes = new TextEncoder().encode(key)
+    const keyBytes = convertedKey || hexToBytes(key)
     const encryptedBytes = Uint8Array.from(atob(ciphertext), (c) => c.charCodeAt(0))
 
     let decryptedBytes: number[] = []
     for (let i = 0; i < encryptedBytes.length; i += 16) {
       const block = Array.from(encryptedBytes.slice(i, i + 16))
-      decryptedBytes = decryptedBytes.concat(aesDecrypt(block, Array.from(keyBytes)))
+      decryptedBytes = decryptedBytes.concat(aesDecrypt(block, keyBytes))
     }
 
     // Remove PKCS7 padding
@@ -329,16 +340,31 @@ export default function AESEncryption() {
     <div className="border p-4 rounded-lg">
       <h3 className="text-xl font-semibold mb-4">AES-ECB Encryption (128-bit key)</h3>
       <div className="space-y-4">
-        <div>
-          <Label htmlFor="key-input">Key (16 characters)</Label>
-          <Input
-            id="key-input"
-            value={key}
-            onChange={(e) => setKey(e.target.value)}
-            maxLength={16}
-            placeholder="Enter 16 characters"
-          />
+        <div className="flex items-end space-x-2">
+          <div className="flex-grow">
+            <Label htmlFor="key-input">Key (32-character hex string)</Label>
+            <Input
+              id="key-input"
+              value={key}
+              onChange={(e) => setKey(e.target.value)}
+              maxLength={32}
+              placeholder="Enter 32-character hex string"
+            />
+          </div>
+          <Button onClick={handleConvertKey}>Convert Key</Button>
         </div>
+        {convertedKey && (
+          <div className="mt-2">
+            <Label>Converted Key (16 bytes)</Label>
+            <div className="p-2 bg-muted rounded-md font-mono text-sm">
+              {convertedKey.map((byte, index) => (
+                <span key={index} className="inline-block w-8">
+                  {byte.toString(16).padStart(2, "0")}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
         <div>
           <Label htmlFor="plaintext-input">Plaintext</Label>
           <Textarea
@@ -362,8 +388,9 @@ export default function AESEncryption() {
       <div className="mt-8 space-y-4">
         <h4 className="text-lg font-semibold">Encryption Steps:</h4>
         <ol className="list-decimal list-inside space-y-2">
-          <li>Generate or input a 128-bit key (16 characters)</li>
-          <li>Convert the key and plaintext to bytes</li>
+          <li>Input a 128-bit key as a 32-character hex string</li>
+          <li>Convert the key from hex to bytes</li>
+          <li>Convert the plaintext to bytes</li>
           <li>Pad the plaintext to a multiple of 16 bytes using PKCS7 padding</li>
           <li>
             For each 16-byte block of plaintext:
@@ -395,7 +422,7 @@ export default function AESEncryption() {
         <h4 className="text-lg font-semibold">Decryption Steps:</h4>
         <ol className="list-decimal list-inside space-y-2">
           <li>Convert the base64 ciphertext to bytes</li>
-          <li>Convert the key to bytes</li>
+          <li>Convert the key from hex to bytes</li>
           <li>
             For each 16-byte block of ciphertext:
             <ol className="list-decimal list-inside ml-4">
