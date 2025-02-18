@@ -198,8 +198,13 @@ const gmul = (a: number, b: number): number => {
   return p & 0xff
 }
 
+const stateToString = (state: number[][]): string => {
+  return state.map((row) => row.map((val) => val.toString(16).padStart(2, "0")).join(" ")).join("\n")
+}
+
 // AES encryption
-const aesEncrypt = (input: number[], key: number[]): number[] => {
+const aesEncrypt = (input: number[], key: number[]): { output: number[]; logs: string[] } => {
+  const logs: string[] = []
   const state = [
     [input[0], input[4], input[8], input[12]],
     [input[1], input[5], input[9], input[13]],
@@ -207,20 +212,35 @@ const aesEncrypt = (input: number[], key: number[]): number[] => {
     [input[3], input[7], input[11], input[15]],
   ]
 
+  logs.push(`Initial state:\n${stateToString(state)}`)
+
   const expandedKey = keyExpansion(key)
 
   addRoundKey(state, expandedKey.slice(0, 4))
+  logs.push(`After initial AddRoundKey:\n${stateToString(state)}`)
 
   for (let round = 1; round < 10; round++) {
     subBytes(state)
+    logs.push(`Round ${round}, after SubBytes:\n${stateToString(state)}`)
+
     shiftRows(state)
+    logs.push(`Round ${round}, after ShiftRows:\n${stateToString(state)}`)
+
     mixColumns(state)
+    logs.push(`Round ${round}, after MixColumns:\n${stateToString(state)}`)
+
     addRoundKey(state, expandedKey.slice(round * 4, (round + 1) * 4))
+    logs.push(`Round ${round}, after AddRoundKey:\n${stateToString(state)}`)
   }
 
   subBytes(state)
+  logs.push(`Final round, after SubBytes:\n${stateToString(state)}`)
+
   shiftRows(state)
+  logs.push(`Final round, after ShiftRows:\n${stateToString(state)}`)
+
   addRoundKey(state, expandedKey.slice(40, 44))
+  logs.push(`Final round, after AddRoundKey:\n${stateToString(state)}`)
 
   const output = new Array(16)
   for (let i = 0; i < 4; i++) {
@@ -228,12 +248,12 @@ const aesEncrypt = (input: number[], key: number[]): number[] => {
       output[i + j * 4] = state[i][j]
     }
   }
-
-  return output
+  return { output, logs }
 }
 
 // AES decryption
-const aesDecrypt = (input: number[], key: number[]): number[] => {
+const aesDecrypt = (input: number[], key: number[]): { output: number[]; logs: string[] } => {
+  const logs: string[] = []
   const state = [
     [input[0], input[4], input[8], input[12]],
     [input[1], input[5], input[9], input[13]],
@@ -241,20 +261,35 @@ const aesDecrypt = (input: number[], key: number[]): number[] => {
     [input[3], input[7], input[11], input[15]],
   ]
 
+  logs.push(`Initial state:\n${stateToString(state)}`)
+
   const expandedKey = keyExpansion(key)
 
   addRoundKey(state, expandedKey.slice(40, 44))
+  logs.push(`After initial AddRoundKey:\n${stateToString(state)}`)
 
   for (let round = 9; round > 0; round--) {
     invShiftRows(state)
+    logs.push(`Round ${10 - round}, after InvShiftRows:\n${stateToString(state)}`)
+
     invSubBytes(state)
+    logs.push(`Round ${10 - round}, after InvSubBytes:\n${stateToString(state)}`)
+
     addRoundKey(state, expandedKey.slice(round * 4, (round + 1) * 4))
+    logs.push(`Round ${10 - round}, after AddRoundKey:\n${stateToString(state)}`)
+
     invMixColumns(state)
+    logs.push(`Round ${10 - round}, after InvMixColumns:\n${stateToString(state)}`)
   }
 
   invShiftRows(state)
+  logs.push(`Final round, after InvShiftRows:\n${stateToString(state)}`)
+
   invSubBytes(state)
+  logs.push(`Final round, after InvSubBytes:\n${stateToString(state)}`)
+
   addRoundKey(state, expandedKey.slice(0, 4))
+  logs.push(`Final round, after AddRoundKey:\n${stateToString(state)}`)
 
   const output = new Array(16)
   for (let i = 0; i < 4; i++) {
@@ -263,7 +298,7 @@ const aesDecrypt = (input: number[], key: number[]): number[] => {
     }
   }
 
-  return output
+  return { output, logs }
 }
 
 // Hex string to bytes converter
@@ -281,6 +316,8 @@ export default function AESEncryption() {
   const [ciphertext, setCiphertext] = useState("")
   const [decryptedText, setDecryptedText] = useState("")
   const [convertedKey, setConvertedKey] = useState<number[] | null>(null)
+  const [encryptionLogs, setEncryptionLogs] = useState<string[]>([])
+  const [decryptionLogs, setDecryptionLogs] = useState<string[]>([])
 
   const handleConvertKey = () => {
     if (key.length !== 32) {
@@ -307,12 +344,17 @@ export default function AESEncryption() {
     paddedText.fill(padLength, textBytes.length)
 
     let encryptedBytes: number[] = []
+    let allLogs: string[] = []
     for (let i = 0; i < paddedText.length; i += 16) {
       const block = Array.from(paddedText.slice(i, i + 16))
-      encryptedBytes = encryptedBytes.concat(aesEncrypt(block, keyBytes))
+      //encryptedBytes = encryptedBytes.concat(aesEncrypt(block, keyBytes))
+      const { output, logs } = aesEncrypt(block, keyBytes)
+      encryptedBytes = encryptedBytes.concat(output)
+      allLogs = allLogs.concat(logs)
     }
 
     setCiphertext(btoa(String.fromCharCode.apply(null, encryptedBytes)))
+    setEncryptionLogs(allLogs)
   }
 
   const handleDecrypt = () => {
@@ -324,9 +366,12 @@ export default function AESEncryption() {
     const encryptedBytes = Uint8Array.from(atob(ciphertext), (c) => c.charCodeAt(0))
 
     let decryptedBytes: number[] = []
+    let allLogs: string[] = []
     for (let i = 0; i < encryptedBytes.length; i += 16) {
       const block = Array.from(encryptedBytes.slice(i, i + 16))
-      decryptedBytes = decryptedBytes.concat(aesDecrypt(block, keyBytes))
+      const { output, logs } = aesDecrypt(block, keyBytes)
+      decryptedBytes = decryptedBytes.concat(output)
+      allLogs = allLogs.concat(logs)
     }
 
     // Remove PKCS7 padding
@@ -334,6 +379,7 @@ export default function AESEncryption() {
     decryptedBytes = decryptedBytes.slice(0, decryptedBytes.length - paddingLength)
 
     setDecryptedText(new TextDecoder().decode(new Uint8Array(decryptedBytes)))
+    setDecryptionLogs(allLogs)
   }
 
   return (
@@ -387,6 +433,10 @@ export default function AESEncryption() {
       </div>
       <div className="mt-8 space-y-4">
         <h4 className="text-lg font-semibold">Encryption Steps:</h4>
+        <pre className="bg-gray-100 p-4 rounded-md overflow-x-auto">{encryptionLogs.join("\n\n")}</pre>
+        <h4 className="text-lg font-semibold">Decryption Steps:</h4>
+        <pre className="bg-gray-100 p-4 rounded-md overflow-x-auto">{decryptionLogs.join("\n\n")}</pre>
+      
         <ol className="list-decimal list-inside space-y-2">
           <li>Input a 128-bit key as a 32-character hex string</li>
           <li>Convert the key from hex to bytes</li>
