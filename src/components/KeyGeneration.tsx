@@ -4,22 +4,54 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { GCD, modInverse, phiFunction, power } from "../utils/modularInverse"
 
 // Generate a random 16-digit hex key
 const generateRandomHexKey = () => {
   return Array.from({ length: 16 }, () => Math.floor(Math.random() * 16).toString(16)).join("")
 }
 
-// Simulated RSA encryption (in a real scenario, use a proper crypto library)
+// const encrypted = rsaEncrypt(state.symmetricKey, state.personBPublicKey.e, state.personBPublicKey.n)
+// Simulated RSA encryption
 const rsaEncrypt = (message: string, e: string, n: string) => {
+  console.log(message)
+  // console.log("pubkey in keygen: " + e)
+  const messageSplit = message.split("").map((char) => {
+    const ascii = char.charCodeAt(0)
+    // console.log("ascii in keygen: " + ascii)
+    const encrypted = power(ascii, Number(e), Number(n))
+    // console.log("ascii encrypted in keygen: " + encrypted) // why is it different?
+    const encryptedAscii = String.fromCharCode(encrypted)
+    // encryptionSteps.push(`${char}: ${ascii}`)
+    // cipherSteps.push(
+    //     `${ascii}^${state.publicKey.e} mod ${state.publicKey.n} = <b>${encrypted}</b> → ${encryptedAscii}`,
+    // )
+    return encryptedAscii
+  })
+  console.log(messageSplit)
   // This is a placeholder. In a real scenario, implement actual RSA encryption
-  return `Encrypted(${message})`
+  return messageSplit.join("")
 }
 
 // Simulated RSA decryption (in a real scenario, use a proper crypto library)
 const rsaDecrypt = (ciphertext: string, d: string, n: string) => {
-  // This is a placeholder. In a real scenario, implement actual RSA decryption
-  return `Decrypted(${ciphertext})`
+  console.log("d:" + d)
+  
+  const decryptedMessage = ciphertext.split("").map((char) => {
+    const ascii = char.charCodeAt(0)
+    console.log("ascii in keygen: " + ascii)
+    const decrypted = power(ascii, Number(d), Number(n))
+    console.log("ascii decrypted in keygen: " + decrypted)
+    const decryptedAscii = String.fromCharCode(decrypted)
+    // decryptionSteps.push(`${char}: ${ascii}`)
+    // plaintextSteps.push(
+    //   `${ascii}^${state.privateKey.d} mod ${state.privateKey.n} = <b>${decrypted}</b> → ${decryptedAscii}`,
+    // )
+
+    return decryptedAscii
+  })
+
+  return decryptedMessage.join("")
 }
 
 export default function KeyGeneration({ state, setState }) {
@@ -49,6 +81,7 @@ export default function KeyGeneration({ state, setState }) {
   }
 
   const decryptKey = () => {
+    console.log(state.encryptedSymmetricKey)
     if (!state.encryptedSymmetricKey) {
       alert("Please encrypt the symmetric key first.")
       return

@@ -73,6 +73,7 @@ export default function RSAEncryption({ state, setState }) {
 
     const msgArray = state.message.split("").map((char) => {
       const ascii = char.charCodeAt(0)
+      // console.log("pubkey in rsa: " + state.publicKey.e)
       const encrypted = power(ascii, state.publicKey.e, state.publicKey.n)
       const encryptedAscii = String.fromCharCode(encrypted)
       encryptionSteps.push(`${char}: ${ascii}`)
@@ -102,6 +103,7 @@ export default function RSAEncryption({ state, setState }) {
     const plaintextSteps = []
     const decryptedMessage = state.encryptedMessage.split("").map((char) => {
       const ascii = char.charCodeAt(0)
+      console.log("ascii in rsa: " + ascii)
       const decrypted = power(ascii, state.privateKey.d, state.privateKey.n)
       const decryptedAscii = String.fromCharCode(decrypted)
       decryptionSteps.push(`${char}: ${ascii}`)
@@ -204,11 +206,11 @@ export default function RSAEncryption({ state, setState }) {
       </Card>
 
       <div>
-        <Label>Public Key</Label>
+        <Label>Public Key (e, n)</Label>
         <Input value={`(${state.publicKey.e}, ${state.publicKey.n})`} readOnly />
       </div>
       <div>
-        <Label>Private Key</Label>
+        <Label>Private Key (d, n)</Label>
         <Input value={`(${state.privateKey.d}, ${state.privateKey.n})`} readOnly />
       </div>
       <div>
