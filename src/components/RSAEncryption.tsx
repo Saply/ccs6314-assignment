@@ -35,10 +35,10 @@ export default function RSAEncryption({ state, setState }) {
       "<u>Step 2: Calculate φ(n) = (p-1) * (q-1)</u>",
       `φ(${n}) = (${state.p} - 1) * (${state.q} - 1)`,
       `φ(${n}) = (${newP}) * (${newQ})`,
-      `φ(${n}) = ${newP * newQ}`,
+      `<b>φ(${n}) = ${newP * newQ}</b>`,
       "<u>Step 3: Verify that gcd(e, φ(n)) = 1 (coprime) AND 1 < e < φ(n)</u>",
-      `GCD(${state.e}, ${phi}) = ${GCD(Number(state.e), phi)}`,
-      `1 < ${state.e} < ${phi}`,
+      `GCD(${state.e}, ${phi}) = <b>${GCD(Number(state.e), phi)}</b>`,
+      `1 < ${state.e} < ${phi} <b>${state.e > 1 && state.e < phi}</b>`,
       "<u>Step 4: Calculate d such that e * d = 1 (mod φ(n))</u>",
       `d = ${state.e}^(-1) mod ${phi}`,
       `d = ${state.e}^(φ(${phi}) - 1) mod ${phi}`,
@@ -47,8 +47,8 @@ export default function RSAEncryption({ state, setState }) {
       "<u>Step 5: Verify if e * d (mod φ(n)) = 1</u>",
       `${state.e} * ${d} mod φ(${n}) = ${(Number(state.e) * d) % phi}`,
       "<u>Step 6: Obtain Public and Private Keys</u>",
-      `Public Key (e, n): (${state.e}, ${n})`,
-      `Private Key (d, n): (${d}, ${n})`,
+      `<b>Public Key (e, n): (${state.e}, ${n})</b>`,
+      `<b>Private Key (d, n): (${d}, ${n})</b>`
     ]
 
     setState((prevState) => ({
@@ -171,7 +171,7 @@ export default function RSAEncryption({ state, setState }) {
         </div>
       </div>
       <div>
-        <Label htmlFor="rsa-message">Message</Label>
+        <Label htmlFor="rsa-message">Message (in ASCII format). Ensure that the encoded message is smaller than <b>n</b></Label>
         <Input
           id="rsa-message"
           value={state.message}
@@ -179,9 +179,12 @@ export default function RSAEncryption({ state, setState }) {
           placeholder="Enter message to encrypt"
         />
       </div>
-      <Button onClick={generateKeys}>Generate Keys</Button>
-      <Button onClick={encryptMessage}>Encrypt</Button>
-      <Button onClick={decryptMessage}>Decrypt</Button>
+      <div className="flex space-x-4">
+        <Button onClick={generateKeys} className="gap-4">Generate Keys</Button>
+        <Button onClick={encryptMessage} className="gap-4">Encrypt</Button>
+        <Button onClick={decryptMessage}>Decrypt</Button>
+      </div>
+
 
       <Card>
         <CardHeader>

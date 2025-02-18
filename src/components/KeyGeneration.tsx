@@ -8,7 +8,7 @@ import { GCD, modInverse, phiFunction, power } from "../utils/modularInverse"
 
 // Generate a random 16-digit hex key
 const generateRandomHexKey = () => {
-  return Array.from({ length: 16 }, () => Math.floor(Math.random() * 16).toString(16)).join("")
+  return Array.from({ length: 32 }, () => Math.floor(Math.random() * 16).toString(16)).join("")
 }
 
 // const encrypted = rsaEncrypt(state.symmetricKey, state.personBPublicKey.e, state.personBPublicKey.n)
@@ -116,17 +116,6 @@ export default function KeyGeneration({ state, setState }) {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>Person B's Public Key - Modulus (n)</Label>
-              <Input
-                value={state.personBPublicKey.n}
-                onChange={(e) =>
-                  setState((prevState) => ({
-                    ...prevState,
-                    personBPublicKey: { ...prevState.personBPublicKey, n: e.target.value },
-                  }))
-                }
-                placeholder="Enter Person B's public key modulus (n)"
-              />
               <Label>Person B's Public Key - Public Exponent (e)</Label>
               <Input
                 value={state.personBPublicKey.e}
@@ -138,9 +127,20 @@ export default function KeyGeneration({ state, setState }) {
                 }
                 placeholder="Enter Person B's public exponent (e)"
               />
+              <Label>Person B's Public Key - Modulus (n)</Label>
+              <Input
+                value={state.personBPublicKey.n}
+                onChange={(e) =>
+                  setState((prevState) => ({
+                    ...prevState,
+                    personBPublicKey: { ...prevState.personBPublicKey, n: e.target.value },
+                  }))
+                }
+                placeholder="Enter Person B's public key modulus (n)"
+              />
             </div>
             <div className="space-y-2">
-              <Label>Symmetric Key (16 hex digits)</Label>
+              <Label>Symmetric Key (32 hex characters)</Label>
               <div className="flex space-x-2">
                 <Input
                   value={state.symmetricKey}

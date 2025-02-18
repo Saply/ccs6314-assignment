@@ -53,7 +53,7 @@ export default function Home() {
           <Tabs defaultValue="rsa">
             <TabsList>
               <TabsTrigger value="rsa">RSA Encryption</TabsTrigger>
-              <TabsTrigger value="keyexchange">Key Generation</TabsTrigger>
+              <TabsTrigger value="keyexchange">Symmetric Key Generation</TabsTrigger>
             </TabsList>
             <TabsContent value="rsa">
               <RSAEncryption state={rsaState} setState={setRsaState} />
