@@ -9,10 +9,11 @@ import { Textarea } from "@/components/ui/textarea"
 export const generatePlayfairMatrix = (key: string): { matrix: string[][]; steps: string[] } => {
   const alphabet = "ABCDEFGHIKLMNOPQRSTUVWXYZ"
   const uniqueChars = Array.from(new Set(key.toUpperCase().replace(/J/g, "I") + alphabet))
+  console.log(uniqueChars)
   const matrix = Array.from({ length: 5 }, (_, i) => uniqueChars.slice(i * 5, (i + 1) * 5))
 
   const steps = [
-    `Key: ${key}`,
+    `Key: ${key.toUpperCase()}`,
     `Unique characters: ${uniqueChars.join("")}`,
     "Playfair Matrix:",
     matrix.map((row) => row.join(" ")).join("\n"),

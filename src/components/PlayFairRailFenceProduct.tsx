@@ -102,7 +102,7 @@ const PlayFairRailFenceProduct = () => {
           ))}
         </div>
         <div>
-          <h4 className="font-semibold">Decryption Steps: (Railfence)</h4>
+          <h4 className="font-semibold">Decryption Steps: (RailFence)</h4>
           {decryptionSteps.map((step, index) => (
             <pre key={`decrypt-${index}`} className="whitespace-pre-wrap bg-gray-100 p-2 rounded mt-2">
               {step}

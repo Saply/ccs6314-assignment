@@ -3,6 +3,7 @@ import RailFenceCipher from "@/components/RailFenceCipher"
 import RSAEncryption from "@/components/RSAEncryption"
 import KeyGeneration from "@/components/KeyGeneration"
 import AESEncryption from "@/components/AESEncryption"
+import PlayFairRailFenceProduct from "@/components/PlayFairRailFenceProduct"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function Home() {
@@ -12,10 +13,11 @@ export default function Home() {
 
       <section className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">1. Classical Symmetric Ciphers</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4">
           <PlayfairCipher />
           <RailFenceCipher />
         </div>
+        <PlayFairRailFenceProduct/>
       </section>
 
       <section className="mb-8">
