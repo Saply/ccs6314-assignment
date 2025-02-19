@@ -18,6 +18,8 @@ export default function Home() {
     privateKey: { n: "", d: "" },
     encryptedMessage: "",
     decryptedMessage: "",
+    rsaEncryptionTime: 0.0,
+    rsaDecryptionTime: 0.0,
     steps: {
       keyGeneration: [],
       encryption: [],

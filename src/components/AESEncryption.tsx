@@ -267,7 +267,6 @@ const aesDecrypt = (input: number[], key: number[]): { output: number[]; logs: s
 
   addRoundKey(state, expandedKey.slice(40, 44))
   logs.push(`After initial AddRoundKey:\n${stateToString(state)}`)
-
   for (let round = 9; round > 0; round--) {
     invShiftRows(state)
     logs.push(`Round ${10 - round}, after InvShiftRows:\n${stateToString(state)}`)
@@ -318,6 +317,9 @@ export default function AESEncryption() {
   const [convertedKey, setConvertedKey] = useState<number[] | null>(null)
   const [encryptionLogs, setEncryptionLogs] = useState<string[]>([])
   const [decryptionLogs, setDecryptionLogs] = useState<string[]>([])
+  const [aesEncryptionTime, setAesEncryptionTime] = useState(0.0)
+  const [aesDecryptionTime, setAesDecryptionTime] = useState(0.0)
+
 
   const handleConvertKey = () => {
     if (key.length !== 32) {
@@ -329,6 +331,7 @@ export default function AESEncryption() {
   }
 
   const handleEncrypt = () => {
+    const startTime = performance.now()
     if (key.length !== 32 && !convertedKey) {
       alert("Please enter a 32-character hex string for the key (128-bit) or convert the key")
       return
@@ -353,11 +356,14 @@ export default function AESEncryption() {
       allLogs = allLogs.concat(logs)
     }
 
+    const endTime = performance.now()
+    setAesEncryptionTime(endTime - startTime)
     setCiphertext(btoa(String.fromCharCode.apply(null, encryptedBytes)))
     setEncryptionLogs(allLogs)
   }
 
   const handleDecrypt = () => {
+    const startTime = performance.now()
     if (key.length !== 32 && !convertedKey) {
       alert("Please enter a 32-character hex string for the key (128-bit) or convert the key")
       return
@@ -378,6 +384,8 @@ export default function AESEncryption() {
     const paddingLength = decryptedBytes[decryptedBytes.length - 1]
     decryptedBytes = decryptedBytes.slice(0, decryptedBytes.length - paddingLength)
 
+    const endTime = performance.now()
+    setAesDecryptionTime(endTime - startTime)
     setDecryptedText(new TextDecoder().decode(new Uint8Array(decryptedBytes)))
     setDecryptionLogs(allLogs)
   }
@@ -430,6 +438,14 @@ export default function AESEncryption() {
           <Label htmlFor="decrypted-output">Decrypted Text</Label>
           <Textarea id="decrypted-output" value={decryptedText} readOnly />
         </div>
+      </div>
+      <div>
+        <h4 className="font-semibold">Encryption Time:</h4>
+        <p>{aesEncryptionTime ? aesEncryptionTime.toFixed(20) : 0} ms</p>
+      </div>
+      <div>
+        <h4 className="font-semibold">Decryption Time:</h4>
+        <p>{aesDecryptionTime ? aesDecryptionTime.toFixed(20) : 0} ms</p>
       </div>
       <div className="mt-8 space-y-4">
         <h4 className="text-lg font-semibold">Encryption Steps:</h4>

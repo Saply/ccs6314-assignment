@@ -46,11 +46,22 @@ function power(base, expo, m) {
 
 module.exports = { GCD, modInverse, phiFunction, extendedGCD, power }
 
-// console.log(phiFunction(77))
-console.log(power(
-        70, 7, 143
-    )
-)
+// const char = "e"
+// console.log("Encoded value: " + char.charCodeAt(0))
+// console.log()
+// const powerres = power(
+//     char.charCodeAt(0), 65537, 3504409
+// )
+// console.log(powerres)
+
+// const encrypted = String.fromCharCode(powerres) // cant handle above 65535
+// console.log(encrypted)
+// console.log(encrypted.charCodeAt(0))
+
+// const decryptionprocess = power(
+    
+// )
+
 // // Example usage:
 // let e = 7; // Public exponent
 // let phi = 120; // Example φ(N), replace with actual computation

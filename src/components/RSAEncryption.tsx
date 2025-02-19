@@ -22,7 +22,7 @@ export default function RSAEncryption({ state, setState }) {
 
   // key generation logic
   const generateKeys = () => {
-    const n = Number(state.p) * Number(state.q)
+    const n = (state.p) * Number(state.q)
     const newP = Number(state.p) - 1
     const newQ = Number(state.q) - 1
     const phi = newP * newQ
@@ -42,10 +42,9 @@ export default function RSAEncryption({ state, setState }) {
       "<u>Step 4: Calculate d such that e * d = 1 (mod φ(n))</u>",
       `d = ${state.e}^(-1) mod ${phi}`,
       `d = ${state.e}^(φ(${phi}) - 1) mod ${phi}`,
-      `d = ${state.e}^(${phiFunction(phi) - 1}) mod ${phi}`,
       `<b>d = ${d}</b>`,
       "<u>Step 5: Verify if e * d (mod φ(n)) = 1</u>",
-      `${state.e} * ${d} mod φ(${n}) = ${(Number(state.e) * d) % phi}`,
+      `${state.e} * ${d} mod φ(${n}) = ${(Number(state.e) * d) % phi} : <b>${((Number(state.e) * d) % phi) === 1 ? "Valid!" : "Invalid public-private key pair!"}</b>`,
       "<u>Step 6: Obtain Public and Private Keys</u>",
       `<b>Public Key (e, n): (${state.e}, ${n})</b>`,
       `<b>Private Key (d, n): (${d}, ${n})</b>`
@@ -60,11 +59,6 @@ export default function RSAEncryption({ state, setState }) {
         keyGeneration: keyGenerationSteps
       }
     }))
-
-    // setLocalSteps((prevSteps) => ({
-    //   ...prevSteps,
-    //   keyGeneration: keyGenerationSteps,
-    // }))
   }
 
   // Encryption logic
@@ -73,70 +67,60 @@ export default function RSAEncryption({ state, setState }) {
       `<u>Step 1: Encode plaintext message '${state.message}' to number m in ASCII representation</u>`,
     ]
     const cipherSteps = []
-
+    const startTime = performance.now()
     const msgArray = state.message.split("").map((char) => {
       const ascii = char.charCodeAt(0)
-      // console.log("pubkey in rsa: " + state.publicKey.e)
       const encrypted = power(ascii, state.publicKey.e, state.publicKey.n)
-      const encryptedAscii = String.fromCharCode(encrypted)
       encryptionSteps.push(`${char}: ${ascii}`)
       cipherSteps.push(
-        `${ascii}^${state.publicKey.e} mod ${state.publicKey.n} = <b>${encrypted}</b> → ${encryptedAscii}`,
+        `${ascii}^${state.publicKey.e} mod ${state.publicKey.n} = <b>${encrypted}</b>`
       )
-
-      return encryptedAscii
+      return encrypted
     })
+    const endTime = performance.now()
 
-    encryptionSteps.push("<u>Step 2: Calculate ciphertext: c = m^e mod n then encode back to ASCII</u>")
+    encryptionSteps.push("<u>Step 2: Calculate ciphertext: c = m^e mod n</u>")
     encryptionSteps = encryptionSteps.concat(cipherSteps)
 
     setState((prevState) => ({
       ...prevState,
-      encryptedMessage: msgArray.join(""),
+      encryptedMessage: msgArray,
+      rsaEncryptionTime: endTime - startTime,
       steps: {
         ...prevState.steps,
         encryption: encryptionSteps
       }
     }))
-
-    // setLocalSteps((prevSteps) => ({
-    //   ...prevSteps,
-    //   encryption: encryptionSteps,
-    // }))
   }
 
   const decryptMessage = () => {
-    let decryptionSteps = [`<u>Step 1: Encode encrypted message to number m in ASCII representation</u>`]
+    let decryptionSteps = [`<u>Step 1: Calculate plaintext: m = c^d mod n</u>`]
     const plaintextSteps = []
-    const decryptedMessage = state.encryptedMessage.split("").map((char) => {
-      const ascii = char.charCodeAt(0)
-      console.log("ascii in rsa: " + ascii)
-      const decrypted = power(ascii, state.privateKey.d, state.privateKey.n)
+    const startTime = performance.now()
+    const decryptedMessage = state.encryptedMessage.map((encrypted) => {
+      const decrypted = power(encrypted, state.privateKey.d, state.privateKey.n)
       const decryptedAscii = String.fromCharCode(decrypted)
-      decryptionSteps.push(`${char}: ${ascii}`)
-      plaintextSteps.push(
-        `${ascii}^${state.privateKey.d} mod ${state.privateKey.n} = <b>${decrypted}</b> → ${decryptedAscii}`,
+      
+      decryptionSteps.push(
+        `${encrypted}^${state.privateKey.d} mod ${state.privateKey.n} = <b>${decrypted}</b>`
       )
-
+      plaintextSteps.push(`${decrypted} → ${decryptedAscii}`)
       return decryptedAscii
     })
-
-    decryptionSteps.push("<u>Step 2: Calculate plaintext: m = c^d mod n then encode back to ASCII</u>")
+    const endTime = performance.now()
+    //     decryptionSteps.push("<u>Step 1: Calculate plaintext: m = c^d mod n</u>")
+    decryptionSteps.push("<u>Step 2: Decode m to plaintext in ASCII representation</u>")
     decryptionSteps = decryptionSteps.concat(plaintextSteps)
 
     setState((prevState) => ({
       ...prevState,
       decryptedMessage: decryptedMessage.join(""),
+      rsaDecryptionTime: endTime - startTime,
       steps: {
         ...prevState.steps,
         decryption: decryptionSteps
       }
     }))
-
-    // setLocalSteps((prevSteps) => ({
-    //   ...prevSteps,
-    //   decryption: decryptionSteps,
-    // }))
   }
 
   return (
@@ -229,11 +213,19 @@ export default function RSAEncryption({ state, setState }) {
       </div>
       <div>
         <Label>Encrypted Message</Label>
-        <Input value={state.encryptedMessage} readOnly />
+        <Input value={`[${state.encryptedMessage}]`} readOnly />
       </div>
       <div>
         <Label>Decrypted Message</Label>
         <Input value={state.decryptedMessage} readOnly />
+      </div>
+      <div>
+        <h4 className="font-semibold">Encryption Time:</h4>
+        <p>{state.rsaEncryptionTime ? state.rsaEncryptionTime.toFixed(20) : 0} ms</p>
+      </div>
+      <div>
+        <h4 className="font-semibold">Decryption Time:</h4>
+        <p>{state.rsaDecryptionTime ? state.rsaDecryptionTime.toFixed(20) : 0} ms</p>
       </div>
     </div>
   )

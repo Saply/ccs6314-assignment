@@ -1,5 +1,5 @@
 "use client"
-
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -11,50 +11,25 @@ const generateRandomHexKey = () => {
   return Array.from({ length: 32 }, () => Math.floor(Math.random() * 16).toString(16)).join("")
 }
 
-// const encrypted = rsaEncrypt(state.symmetricKey, state.personBPublicKey.e, state.personBPublicKey.n)
 // Simulated RSA encryption
 const rsaEncrypt = (message: string, e: string, n: string) => {
-  console.log(message)
-  // console.log("pubkey in keygen: " + e)
-  const messageSplit = message.split("").map((char) => {
+  return message.split("").map((char) => {
     const ascii = char.charCodeAt(0)
-    // console.log("ascii in keygen: " + ascii)
-    const encrypted = power(ascii, Number(e), Number(n))
-    // console.log("ascii encrypted in keygen: " + encrypted) // why is it different?
-    const encryptedAscii = String.fromCharCode(encrypted)
-    // encryptionSteps.push(`${char}: ${ascii}`)
-    // cipherSteps.push(
-    //     `${ascii}^${state.publicKey.e} mod ${state.publicKey.n} = <b>${encrypted}</b> → ${encryptedAscii}`,
-    // )
-    return encryptedAscii
+    return power(ascii, Number(e), Number(n))
   })
-  console.log(messageSplit)
-  // This is a placeholder. In a real scenario, implement actual RSA encryption
-  return messageSplit.join("")
 }
 
-// Simulated RSA decryption (in a real scenario, use a proper crypto library)
-const rsaDecrypt = (ciphertext: string, d: string, n: string) => {
-  console.log("d:" + d)
-  
-  const decryptedMessage = ciphertext.split("").map((char) => {
-    const ascii = char.charCodeAt(0)
-    console.log("ascii in keygen: " + ascii)
-    const decrypted = power(ascii, Number(d), Number(n))
-    console.log("ascii decrypted in keygen: " + decrypted)
-    const decryptedAscii = String.fromCharCode(decrypted)
-    // decryptionSteps.push(`${char}: ${ascii}`)
-    // plaintextSteps.push(
-    //   `${ascii}^${state.privateKey.d} mod ${state.privateKey.n} = <b>${decrypted}</b> → ${decryptedAscii}`,
-    // )
-
-    return decryptedAscii
-  })
-
-  return decryptedMessage.join("")
+// Simulated RSA decryption
+const rsaDecrypt = (ciphertext: number[], d: string, n: string) => {
+  return ciphertext.map((num) => {
+    return String.fromCharCode(power(num, Number(d), Number(n)))
+  }).join("")
 }
 
 export default function KeyGeneration({ state, setState }) {
+  const [encryptionTime, setEncryptionTime] = useState(0)
+  const [decryptionTime, setDecryptionTime] = useState(0)
+
   const generateKey = () => {
     const key = generateRandomHexKey()
     setState((prevState) => ({
@@ -75,13 +50,12 @@ export default function KeyGeneration({ state, setState }) {
       encryptedSymmetricKey: encrypted,
       steps: [
         ...prevState.steps,
-        `Step 2: Person A encrypts symmetric key with Person B's public key: <b>${encrypted}</b>`,
+        `Step 2: Person A encrypts symmetric key with Person B's public key: <b>[${encrypted}]</b>`
       ],
     }))
   }
 
   const decryptKey = () => {
-    console.log(state.encryptedSymmetricKey)
     if (!state.encryptedSymmetricKey) {
       alert("Please encrypt the symmetric key first.")
       return
@@ -93,7 +67,7 @@ export default function KeyGeneration({ state, setState }) {
       steps: [
         ...prevState.steps,
         `Step 3: Person B decrypts the symmetric key: <b>${decrypted}</b>`,
-        `Step 4: Verify that the decrypted key matches the original: <b>${decrypted === state.symmetricKey}</b>`,
+        `Step 4: Verify that the decrypted key matches the original: <b>${decrypted === state.symmetricKey}</b>`
       ],
     }))
   }
@@ -155,7 +129,7 @@ export default function KeyGeneration({ state, setState }) {
             <Button onClick={encryptKey}>Encrypt Key for Person B</Button>
             <div>
               <Label>Encrypted Symmetric Key</Label>
-              <Input value={state.encryptedSymmetricKey} readOnly />
+              <Input value={JSON.stringify(state.encryptedSymmetricKey)} readOnly />
             </div>
           </CardContent>
         </Card>
@@ -214,4 +188,3 @@ export default function KeyGeneration({ state, setState }) {
     </div>
   )
 }
-
