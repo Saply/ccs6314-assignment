@@ -89,11 +89,11 @@ const PlayFairRailFenceProduct = () => {
         {/* Display Encryption and Decryption Times */}
         <div>
           <h4 className="font-semibold">Encryption Time:</h4>
-          <p>{encryptionTime.toFixed(20)} ms</p>
+          <p>{encryptionTime.toFixed(3)} ms</p>
         </div>
         <div>
           <h4 className="font-semibold">Decryption Time:</h4>
-          <p>{decryptionTime.toFixed(20)} ms</p>
+          <p>{decryptionTime.toFixed(3)} ms</p>
         </div>
 
         <div className="flex items-center space-x-2">

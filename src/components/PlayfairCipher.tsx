@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Switch } from "@/components/ui/switch"
 
 export const generatePlayfairMatrix = (key: string): { matrix: string[][]; steps: string[]} => {
   const alphabet = "ABCDEFGHIKLMNOPQRSTUVWXYZ"
@@ -124,6 +125,8 @@ export default function PlayfairCipher() {
   const [decryptionSteps, setDecryptionSteps] = useState<string[]>([])
   const [encryptionTime, setEncryptionTime] = useState(0)
   const [decryptionTime, setDecryptionTime] = useState(0)
+  const [showSteps, setShowSteps] = useState(true)
+
 
   const handleEncrypt = () => {
     const startTime = performance.now()
@@ -131,7 +134,7 @@ export default function PlayfairCipher() {
     const { ciphertext, steps: encryptSteps} = encrypt(plaintext, matrix)
     const endTime = performance.now()
     const time = endTime - startTime
-    console.log(time)
+    console.log(time) 
     setCiphertext(ciphertext)
     setMatrixSteps(matrixSteps)
     setEncryptionSteps(encryptSteps)
@@ -186,13 +189,19 @@ export default function PlayfairCipher() {
         {/* Display Encryption and Decryption Times */}
         <div>
           <h4 className="font-semibold">Encryption Time:</h4>
-          <p>{encryptionTime.toFixed(20)} ms</p>
+          <p>{encryptionTime.toFixed(3)} ms</p>
         </div>
         <div>
           <h4 className="font-semibold">Decryption Time:</h4>
-          <p>{decryptionTime.toFixed(20)} ms</p>
+          <p>{decryptionTime.toFixed(3)} ms</p>
         </div>
-        <div>
+        <div className="flex items-center space-x-2">
+          <Switch id="show-steps" checked={showSteps} onCheckedChange={setShowSteps} />
+          <Label htmlFor="show-steps">Show Encryption/Decryption Steps</Label>
+        </div>
+        {showSteps && (
+          <>
+          <div>
           <h4 className="font-semibold">Playfair Matrix:</h4>
           {matrixSteps.map((step, index) => (
             <pre key={`matrix-${index}`} className="whitespace-pre-wrap bg-gray-100 p-2 rounded mt-2">
@@ -216,6 +225,8 @@ export default function PlayfairCipher() {
             </pre>
           ))}
         </div>
+          </>
+        )}
       </div>
     </div>
   )

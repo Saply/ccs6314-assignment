@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Switch } from "@/components/ui/switch"
 
 export const encryptRailFence = (plaintext: string, depth: number): { ciphertext: string; steps: string[] } => {
   if (depth <= 1) return { ciphertext: plaintext, steps: ["Depth is 1, no encryption needed."] }
@@ -16,7 +17,7 @@ export const encryptRailFence = (plaintext: string, depth: number): { ciphertext
 
   for (let i = 0; i < plaintext.length; i++) {
     rail[row] += plaintext[i]
-    const currentState = rail.map((r) => r.padEnd(plaintext.length)).join("\n")
+    const currentState = rail.map((r) => r).join("\n")
     steps.push(`Step ${i + 1}:\n${currentState}`)
 
     if (row === 0) direction = 1
@@ -80,6 +81,7 @@ export default function RailFenceCipher() {
   const [decryptionSteps, setDecryptionSteps] = useState<string[]>([])
   const [encryptionTime, setEncryptionTime] = useState(0)
   const [decryptionTime, setDecryptionTime] = useState(0)
+  const [showSteps, setShowSteps] = useState(true)
 
   const handleEncrypt = () => {
     const startTime = performance.now()
@@ -140,17 +142,22 @@ export default function RailFenceCipher() {
         {/* Display Encryption and Decryption Times */}
         <div>
           <h4 className="font-semibold">Encryption Time:</h4>
-          <p>{encryptionTime.toFixed(20)} ms</p>
+          <p>{encryptionTime.toFixed(3)} ms</p>
         </div>
         <div>
           <h4 className="font-semibold">Decryption Time:</h4>
-          <p>{decryptionTime.toFixed(20)} ms</p>
+          <p>{decryptionTime.toFixed(3)} ms</p>
         </div>
-
-        <div>
+        <div className="flex items-center space-x-2">
+          <Switch id="show-steps" checked={showSteps} onCheckedChange={setShowSteps} />
+          <Label htmlFor="show-steps">Show Encryption/Decryption Steps</Label>
+        </div>
+        {showSteps && (
+          <>
+          <div>
           <h4 className="font-semibold">Encryption Steps:</h4>
           {encryptionSteps.map((step, index) => (
-            <pre key={`encrypt-${index}`} className="whitespace-pre-wrap bg-gray-100 p-2 rounded mt-2">
+            <pre key={`encrypt-${index}`} className="whitespace-pre-wrap bg-gray-100 p-2 rounded mt-2 ">
               {step}
             </pre>
           ))}
@@ -163,6 +170,8 @@ export default function RailFenceCipher() {
             </pre>
           ))}
         </div>
+          </>
+        )}
       </div>
     </div>
   )
