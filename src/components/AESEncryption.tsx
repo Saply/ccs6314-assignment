@@ -433,7 +433,12 @@ export default function AESEncryption() {
         <Button onClick={handleEncrypt}>Encrypt</Button>
         <div>
           <Label htmlFor="ciphertext-output">Ciphertext</Label>
-          <Textarea id="ciphertext-output" value={ciphertext} readOnly />
+          <Textarea 
+            id="ciphertext-output" 
+            value={ciphertext}
+            onChange={(e) => setCiphertext(e.target.value)}
+            placeholder="Enter plaintext"
+          />
         </div>
         <Button onClick={handleDecrypt}>Decrypt</Button>
         <div>
