@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Switch } from "@/components/ui/switch"
 import { generatePlayfairMatrix, encrypt, decrypt } from "@/components/PlayfairCipher"
 import {encryptRailFence, decryptRailFence} from "@/components/RailFenceCipher"
 
@@ -21,6 +22,7 @@ const PlayFairRailFenceProduct = () => {
   const [decryptionSteps2, setDecryptionSteps2] = useState<string[]>([])
   const [encryptionTime, setEncryptionTime] = useState(0)
   const [decryptionTime, setDecryptionTime] = useState(0)
+  const [showSteps, setShowSteps] = useState(true)
 
   const handleEncrypt = () => {
     if (!key || !plaintext) {
@@ -93,46 +95,56 @@ const PlayFairRailFenceProduct = () => {
           <h4 className="font-semibold">Decryption Time:</h4>
           <p>{decryptionTime.toFixed(20)} ms</p>
         </div>
-        <div>
-          <h4 className="font-semibold">Playfair Matrix:</h4>
-          {matrixSteps.map((step, index) => (
-            <pre key={`matrix-${index}`} className="whitespace-pre-wrap bg-gray-100 p-2 rounded mt-2">
-              {step}
-            </pre>
-          ))}
+
+        <div className="flex items-center space-x-2">
+          <Switch id="show-steps" checked={showSteps} onCheckedChange={setShowSteps} />
+          <Label htmlFor="show-steps">Show Encryption/Decryption Steps</Label>
         </div>
-        <div>
-          <h4 className="font-semibold">Encryption Steps (Playfair):</h4>
-          {encryptionSteps.map((step, index) => (
-            <pre key={`encrypt-${index}`} className="whitespace-pre-wrap bg-gray-100 p-2 rounded mt-2">
-              {step}
-            </pre>
-          ))}
-        </div>
-        <div>
-          <h4 className="font-semibold">Encryption Steps (RailFence):</h4>
-          {encryptionSteps2.map((step, index) => (
-            <pre key={`encrypt-${index}`} className="whitespace-pre-wrap bg-gray-100 p-2 rounded mt-2">
-              {step}
-            </pre>
-          ))}
-        </div>
-        <div>
-          <h4 className="font-semibold">Decryption Steps: (RailFence)</h4>
-          {decryptionSteps.map((step, index) => (
-            <pre key={`decrypt-${index}`} className="whitespace-pre-wrap bg-gray-100 p-2 rounded mt-2">
-              {step}
-            </pre>
-          ))}
-        </div>
-        <div>
-          <h4 className="font-semibold">Decryption Steps: (PlayFair)</h4>
-          {decryptionSteps2.map((step, index) => (
-            <pre key={`decrypt-${index}`} className="whitespace-pre-wrap bg-gray-100 p-2 rounded mt-2">
-              {step}
-            </pre>
-          ))}
-        </div>
+
+        {showSteps && (
+          <>
+            <div>
+            <h4 className="font-semibold">Playfair Matrix:</h4>
+            {matrixSteps.map((step, index) => (
+              <pre key={`matrix-${index}`} className="whitespace-pre-wrap bg-gray-100 p-2 rounded mt-2">
+                {step}
+              </pre>
+            ))}
+          </div>
+          <div>
+            <h4 className="font-semibold">Encryption Steps (Playfair):</h4>
+            {encryptionSteps.map((step, index) => (
+              <pre key={`encrypt-${index}`} className="whitespace-pre-wrap bg-gray-100 p-2 rounded mt-2">
+                {step}
+              </pre>
+            ))}
+          </div>
+          <div>
+            <h4 className="font-semibold">Encryption Steps (RailFence):</h4>
+            {encryptionSteps2.map((step, index) => (
+              <pre key={`encrypt-${index}`} className="whitespace-pre-wrap bg-gray-100 p-2 rounded mt-2">
+                {step}
+              </pre>
+            ))}
+          </div>
+          <div>
+            <h4 className="font-semibold">Decryption Steps: (RailFence)</h4>
+            {decryptionSteps.map((step, index) => (
+              <pre key={`decrypt-${index}`} className="whitespace-pre-wrap bg-gray-100 p-2 rounded mt-2">
+                {step}
+              </pre>
+            ))}
+          </div>
+          <div>
+            <h4 className="font-semibold">Decryption Steps: (PlayFair)</h4>
+            {decryptionSteps2.map((step, index) => (
+              <pre key={`decrypt-${index}`} className="whitespace-pre-wrap bg-gray-100 p-2 rounded mt-2">
+                {step}
+              </pre>
+            ))}
+          </div>
+          </>
+        )}
       </div>
     </div>
   )

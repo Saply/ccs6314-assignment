@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { GCD, modInverse, phiFunction, power } from "../utils/modularInverse"
+import { GCD, modInverse, power } from "../utils/modularInverse"
+import { Switch } from "@/components/ui/switch"
 
 export default function RSAEncryption({ state, setState }) {
+  const [showSteps, setShowSteps] = useState(true)
 //   const [localSteps, setLocalSteps] = useState({
 //     keyGeneration: [],
 //     encryption: [],
@@ -169,39 +171,47 @@ export default function RSAEncryption({ state, setState }) {
         <Button onClick={decryptMessage}>Decrypt</Button>
       </div>
 
+      <div className="flex items-center space-x-2">
+        <Switch id="show-steps" checked={showSteps} onCheckedChange={setShowSteps} />
+        <Label htmlFor="show-steps">Show Encryption/Decryption Steps</Label>
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Key Generation Steps</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {state.steps.keyGeneration.map((step, index) => (
-            <p key={`keygen-${index}`} dangerouslySetInnerHTML={{ __html: step }} />
-          ))}
-        </CardContent>
-      </Card>
+      {showSteps && (
+        <>
+          <Card>
+            <CardHeader>
+              <CardTitle>Key Generation Steps</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {state.steps.keyGeneration.map((step, index) => (
+                <p key={`keygen-${index}`} dangerouslySetInnerHTML={{ __html: step }} />
+              ))}
+            </CardContent>
+          </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Encryption Steps</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {state.steps.encryption.map((step, index) => (
-            <p key={`encrypt-${index}`} dangerouslySetInnerHTML={{ __html: step }} />
-          ))}
-        </CardContent>
-      </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Encryption Steps</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {state.steps.encryption.map((step, index) => (
+                <p key={`encrypt-${index}`} dangerouslySetInnerHTML={{ __html: step }} />
+              ))}
+            </CardContent>
+          </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Decryption Steps</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {state.steps.decryption.map((step, index) => (
-            <p key={`decrypt-${index}`} dangerouslySetInnerHTML={{ __html: step }} />
-          ))}
-        </CardContent>
-      </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Decryption Steps</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {state.steps.decryption.map((step, index) => (
+                <p key={`decrypt-${index}`} dangerouslySetInnerHTML={{ __html: step }} />
+              ))}
+            </CardContent>
+          </Card>
+        </>
+      )}
 
       <div>
         <Label>Public Key (e, n)</Label>

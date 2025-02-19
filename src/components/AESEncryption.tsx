@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Switch } from "@/components/ui/switch"
 
 // S-box
 const sBox = [
@@ -319,6 +320,7 @@ export default function AESEncryption() {
   const [decryptionLogs, setDecryptionLogs] = useState<string[]>([])
   const [aesEncryptionTime, setAesEncryptionTime] = useState(0.0)
   const [aesDecryptionTime, setAesDecryptionTime] = useState(0.0)
+  const [showSteps, setShowSteps] = useState(true)
 
 
   const handleConvertKey = () => {
@@ -447,11 +449,22 @@ export default function AESEncryption() {
         <h4 className="font-semibold">Decryption Time:</h4>
         <p>{aesDecryptionTime ? aesDecryptionTime.toFixed(20) : 0} ms</p>
       </div>
+
+      <div className="flex items-center space-x-2">
+        <Switch id="show-steps" checked={showSteps} onCheckedChange={setShowSteps} />
+        <Label htmlFor="show-steps">Show Encryption/Decryption Steps</Label>
+      </div>
+
       <div className="mt-8 space-y-4">
-        <h4 className="text-lg font-semibold">Encryption Steps:</h4>
-        <pre className="bg-gray-100 p-4 rounded-md overflow-x-auto">{encryptionLogs.join("\n\n")}</pre>
-        <h4 className="text-lg font-semibold">Decryption Steps:</h4>
-        <pre className="bg-gray-100 p-4 rounded-md overflow-x-auto">{decryptionLogs.join("\n\n")}</pre>
+        {showSteps && (
+          <>
+            <h4 className="text-lg font-semibold">Encryption Steps:</h4>
+            <pre className="bg-gray-100 p-4 rounded-md overflow-x-auto">{encryptionLogs.join("\n\n")}</pre>
+            <h4 className="text-lg font-semibold">Decryption Steps:</h4>
+            <pre className="bg-gray-100 p-4 rounded-md overflow-x-auto">{decryptionLogs.join("\n\n")}</pre>
+          </>
+        )}
+
       
         <ol className="list-decimal list-inside space-y-2">
           <li>Input a 128-bit key as a 32-character hex string</li>

@@ -1,10 +1,9 @@
 "use client"
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { GCD, modInverse, phiFunction, power } from "../utils/modularInverse"
+import { power } from "../utils/modularInverse"
 
 // Generate a random 16-digit hex key
 const generateRandomHexKey = () => {
@@ -27,8 +26,6 @@ const rsaDecrypt = (ciphertext: number[], d: string, n: string) => {
 }
 
 export default function KeyGeneration({ state, setState }) {
-  const [encryptionTime, setEncryptionTime] = useState(0)
-  const [decryptionTime, setDecryptionTime] = useState(0)
 
   const generateKey = () => {
     const key = generateRandomHexKey()
