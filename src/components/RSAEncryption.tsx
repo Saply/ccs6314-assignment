@@ -24,11 +24,11 @@ export default function RSAEncryption({ state, setState }) {
 
   // key generation logic
   const generateKeys = () => {
-    const n = (state.p) * Number(state.q)
-    const newP = Number(state.p) - 1
-    const newQ = Number(state.q) - 1
+    const n = BigInt(state.p) * BigInt(state.q)
+    const newP = BigInt(state.p) - BigInt(1)
+    const newQ = BigInt(state.q) - BigInt(1)
     const phi = newP * newQ
-    const d = modInverse(Number(state.e), phi)
+    const d = modInverse(BigInt(state.e), BigInt(phi))
 
     const keyGenerationSteps = [
       "<u>Step 1: Calculate n = p * q</u>",
@@ -37,16 +37,16 @@ export default function RSAEncryption({ state, setState }) {
       "<u>Step 2: Calculate φ(n) = (p-1) * (q-1)</u>",
       `φ(${n}) = (${state.p} - 1) * (${state.q} - 1)`,
       `φ(${n}) = (${newP}) * (${newQ})`,
-      `<b>φ(${n}) = ${newP * newQ}</b>`,
+      `<b>φ(${n}) = ${phi}</b>`,
       "<u>Step 3: Verify that gcd(e, φ(n)) = 1 (coprime) AND 1 < e < φ(n)</u>",
-      `GCD(${state.e}, ${phi}) = <b>${GCD(Number(state.e), phi)} : ${GCD(Number(state.e), phi) === 1 ? "Coprime" : "Not coprime"}</b>`,
+      `GCD(${state.e}, ${phi}) = <b>${GCD(BigInt(state.e), BigInt(phi))} : ${GCD(BigInt(state.e), BigInt(phi)) === BigInt(1) ? "Coprime" : "Not coprime"}</b>`,
       `1 < ${state.e} < ${phi} <b>${state.e > 1 && state.e < phi}</b>`,
       "<u>Step 4: Calculate d such that e * d = 1 (mod φ(n))</u>",
       `d = ${state.e}^(-1) mod ${phi}`,
       `d = ${state.e}^(φ(${phi}) - 1) mod ${phi}`,
       `<b>d = ${d}</b>`,
       "<u>Step 5: Verify if e * d (mod φ(n)) = 1</u>",
-      `${state.e} * ${d} mod φ(${n}) = ${(Number(state.e) * d) % phi} : <b>${((Number(state.e) * d) % phi) === 1 ? "Valid!" : "Invalid public-private key pair!"}</b>`,
+      `${state.e} * ${d} mod φ(${n}) = ${(BigInt(state.e) * BigInt(d)) % BigInt(phi)} : <b>${((BigInt(state.e) * BigInt(d)) % BigInt(phi)) === BigInt(1) ? "Valid!" : "Invalid public-private key pair!"}</b>`,
       "<u>Step 6: Obtain Public and Private Keys</u>",
       `<b>Public Key (e, n): (${state.e}, ${n})</b>`,
       `<b>Private Key (d, n): (${d}, ${n})</b>`
@@ -54,7 +54,7 @@ export default function RSAEncryption({ state, setState }) {
 
     setState((prevState) => ({
       ...prevState,
-      publicKey: { n: n, e: Number.parseInt(state.e, 10) },
+      publicKey: { n: n, e: BigInt(state.e) },
       privateKey: { n: n, d: d },
       steps: {
         ...prevState.steps,
@@ -101,7 +101,7 @@ export default function RSAEncryption({ state, setState }) {
     const startTime = performance.now()
     const decryptedMessage = state.encryptedMessage.map((encrypted) => {
       const decrypted = power(encrypted, state.privateKey.d, state.privateKey.n)
-      const decryptedAscii = String.fromCharCode(decrypted)
+      const decryptedAscii = String.fromCharCode(Number(decrypted))
       
       decryptionSteps.push(
         `${encrypted}^${state.privateKey.d} mod ${state.privateKey.n} = <b>${decrypted}</b>`

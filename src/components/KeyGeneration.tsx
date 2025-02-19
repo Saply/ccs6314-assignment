@@ -14,14 +14,17 @@ const generateRandomHexKey = () => {
 const rsaEncrypt = (message: string, e: string, n: string) => {
   return message.split("").map((char) => {
     const ascii = char.charCodeAt(0)
-    return power(ascii, Number(e), Number(n))
+    return power(ascii, e, n)
   })
 }
 
 // Simulated RSA decryption
-const rsaDecrypt = (ciphertext: number[], d: string, n: string) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const rsaDecrypt = (ciphertext: any, d: string, n: string) => {
   return ciphertext.map((num) => {
-    return String.fromCharCode(power(num, Number(d), Number(n)))
+    const decrypted = power(num, d, n)
+    console.log(`${num} to ${decrypted}`)
+    return String.fromCharCode(Number(decrypted))
   }).join("")
 }
 
@@ -126,7 +129,7 @@ export default function KeyGeneration({ state, setState }) {
             <Button onClick={encryptKey}>Encrypt Key for Person B</Button>
             <div>
               <Label>Encrypted Symmetric Key</Label>
-              <Input value={JSON.stringify(state.encryptedSymmetricKey)} readOnly />
+              <Input value={`[${state.encryptedSymmetricKey}]`} readOnly />
             </div>
           </CardContent>
         </Card>

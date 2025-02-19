@@ -1,31 +1,37 @@
-function GCD( a,  b)
-{
-    if (a == 0)
-        return b;
-    return GCD(b % a, a);
-}
+function GCD(a, b) {
+    a = BigInt(a);
+    b = BigInt(b);
+    while (b !== BigInt(0)) {
+      [a, b] = [b, a % b];
+    }
+    return a;
+  }
 
-function phiFunction(n)
-{
-    let result = 1;
-    for (let i = 2; i < n; i++)
-        if (GCD(i, n) == 1)
-            result++;
-    return result;
+function phiFunction(n) {
+n = BigInt(n);
+let result = BigInt(1);
+for (let i = BigInt(2); i < n; i++) {
+    if (GCD(i, n) === BigInt(1)) {
+    result++;
+    }
+}
+return result;
 }
 
 function extendedGCD(a, b) {
-    if (a === 0) return [b, 0, 1];
-    let [gcd, x1, y1] = extendedGCD(b % a, a);
-    let x = y1 - Math.floor(b / a) * x1;
-    let y = x1;
-    return [gcd, x, y];
+a = BigInt(a);
+b = BigInt(b);
+if (a === BigInt(0)) return [b, BigInt(0), BigInt(1)];
+let [gcd, x1, y1] = extendedGCD(b % a, a);
+let x = y1 - (b / a) * x1;
+let y = x1;
+return [gcd, x, y];
 }
 
 function modInverse(e, phi) {
     let [gcd, x] = extendedGCD(e, phi);
-    if (gcd !== 1) throw new Error("No modular inverse exists (e and phi are not coprime)");
-    return (x % phi + phi) % phi;  // Ensure positive result
+    if (gcd !== BigInt(1)) throw new Error("No modular inverse exists (e and phi are not coprime)");
+    return (x % phi + phi) % phi; // Ensure positive result
 }
 
 // Function to compute base^expo mod m using BigInt
@@ -41,7 +47,7 @@ function power(base, expo, m) {
         base = (base * base) % BigInt(m); 
         expo = expo / BigInt(2); // Use BigInt division
     }
-    return Number(res);
+    return res;
 }
 
 module.exports = { GCD, modInverse, phiFunction, extendedGCD, power }
