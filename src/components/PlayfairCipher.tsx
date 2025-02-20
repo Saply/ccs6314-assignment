@@ -58,7 +58,9 @@ export const encrypt = (plaintext: string, matrix: string[][]): { ciphertext: st
         }
       }
     }
-
+    //If both letters are in the same row, replace them with the next column values.
+    //If both letters are in the same column, replace them with the next row values.
+    //Otherwise, swap the columns
     let encryptedPair = ""
     if (rowA === rowB) {
       encryptedPair = matrix[rowA][(colA + 1) % 5] + matrix[rowB][(colB + 1) % 5]

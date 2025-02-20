@@ -20,6 +20,7 @@ export const encryptRailFence = (plaintext: string, depth: number): { ciphertext
     const currentState = rail.map((r) => r).join("\n")
     steps.push(`Step ${i + 1}:\n${currentState}`)
 
+    // Change row traversal direction
     if (row === 0) direction = 1
     else if (row === depth - 1) direction = -1
     row += direction
