@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { power } from "../utils/modularInverse"
 
-// Generate a random 16-digit hex key
+// Generate a random 32-digit hex key
 const generateRandomHexKey = () => {
   return Array.from({ length: 32 }, () => Math.floor(Math.random() * 16).toString(16)).join("")
 }
@@ -23,13 +23,13 @@ const rsaEncrypt = (message: string, e: string, n: string) => {
 const rsaDecrypt = (ciphertext: any, d: string, n: string) => {
   return ciphertext.map((num) => {
     const decrypted = power(num, d, n)
-    console.log(`${num} to ${decrypted}`)
+    // console.log(`${num} to ${decrypted}`)
     return String.fromCharCode(Number(decrypted))
   }).join("")
 }
 
 export default function KeyGeneration({ state, setState }) {
-
+  // generate key then start steps
   const generateKey = () => {
     const key = generateRandomHexKey()
     setState((prevState) => ({
