@@ -90,7 +90,7 @@ export default function KeyGeneration({ state, setState }) {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>Person B's Public Key - Public Exponent (e)</Label>
+              <Label>Person B&apos;s Public Key - Public Exponent (e)</Label>
               <Input
                 value={state.personBPublicKey.e}
                 onChange={(e) =>
@@ -101,7 +101,7 @@ export default function KeyGeneration({ state, setState }) {
                 }
                 placeholder="Enter Person B's public exponent (e)"
               />
-              <Label>Person B's Public Key - Modulus (n)</Label>
+              <Label>Person B&apos;s Public Key - Modulus (n)</Label>
               <Input
                 value={state.personBPublicKey.n}
                 onChange={(e) =>

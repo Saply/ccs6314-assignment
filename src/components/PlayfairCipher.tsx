@@ -41,6 +41,7 @@ export const encrypt = (plaintext: string, matrix: string[][]): { ciphertext: st
 
   //If both letters in a pair are the same, the second letter is replaced with 'X
   for (const pair of pairs) {
+    // eslint-disable-next-line prefer-const
     let [a, b] = pair.split("")
     if (a === b) b = "X"
   
